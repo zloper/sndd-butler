@@ -14,6 +14,8 @@ code = "sndd"
 
 vc = ""
 
+ddg = lib.DuckDuckGo()
+
 
 @bot.event
 async def on_ready():
@@ -143,6 +145,14 @@ async def on_message(message, answered=False):
     if message.content.startswith(code + ' ты '):
         await bot.send_message(message.channel, bot_tools.you_answer())
         answered = True
+    # check duck-duck-go query (see phrases in lib)
+    if message.content.startswith(code):
+        text = message.content[len(code):]
+        ans = await ddg.ask_if_possible(text)
+        if ans is not None:
+            # found something
+            await bot.send_message(message.channel, bot_tools.you_answer())
+            answered = True
 
     if message.content.startswith(code + 'exit233'):
         sys.exit()
