@@ -151,8 +151,11 @@ async def on_message(message, answered=False):
         ans = await ddg.ask_if_possible(text)
         if ans is not None:
             # found something
-            await bot.send_message(message.channel, bot_tools.you_answer())
-            answered = True
+            #TODO catch error: Attempt to decode JSON with unexpected mimetype: application/x-javascript
+            print("debug ans: ", ans)
+            if len(ans.strip()) > 0:
+                await bot.send_message(message.channel, ans)
+                answered = True
 
     if message.content.startswith(code + 'exit233'):
         sys.exit()

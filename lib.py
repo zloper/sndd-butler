@@ -1,5 +1,4 @@
 from typing import Optional
-
 import aiohttp
 
 player = None
@@ -44,6 +43,7 @@ class DuckDuckGo:
 
     @staticmethod
     def trigger_word(text: str) -> Optional[str]:
+        text = text.strip()
         for ph in DuckDuckGo.PHRASES:
             if text.startswith(ph):
                 # find next word
