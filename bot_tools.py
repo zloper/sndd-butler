@@ -3,8 +3,16 @@ import lib
 import random
 import json
 
+def get_player(server):
+    return lib.players.get(server, None)
+
+def set_player(server, value):
+    lib.players[server] = value
+    return lib.players[server]
+
 
 async def start_song(message, bot):
+    player = get_player(message.server)
     url = str(message.content).split('спой')[1].strip()
 
     if url.startswith("https://www.youtube.com") or url.startswith("https://youtu.be"):
@@ -13,19 +21,19 @@ async def start_song(message, bot):
         await bot.send_message(message.channel, 'Не такое спеть не могу :(')
         return
 
-    if lib.player != None:
-        lib.player.stop()
+    if player != None:
+        player.stop()
 
     if voice_chat:
-        lib.player = await voice_chat.create_ytdl_player(url)
-        lib.player.volume = 0.5
+        player = set_player(message.server, await voice_chat.create_ytdl_player(url))
+        player.volume = 0.5
     else:
         await bot.send_message(message.channel, 'Так меня не услышат Т_Т')
         return
 
     await bot.send_message(message.channel, 'Ладушки!')
-    if lib.player:
-        lib.player.start()
+    if player:
+        player.start()
     else:
         await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
 
@@ -35,10 +43,12 @@ def random_answer():
         answers = json.load(f)
     return random.choice(answers)
 
+
 def you_answer():
     with open("you_answers.json", "r") as f:
         answers = json.load(f)
     return random.choice(answers)
+
 
 def q_answer():
     answers = ['Вот так?',

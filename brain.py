@@ -2,7 +2,7 @@ from datetime import datetime
 import discord
 import sys
 
-import bot_tools
+import bot_tools as bt
 import lib
 import wow
 
@@ -27,9 +27,11 @@ async def on_ready():
 
 @bot.event
 async def on_message(message, answered=False):
+    player = bt.get_player(message.server)
+
     if message.content.startswith(code + ' привет'):
         print('[command]: hi')
-        await bot.send_message(message.channel, '%s' % bot_tools.hi_answer())
+        await bot.send_message(message.channel, '%s' % bt.hi_answer())
         answered = True
 
     if message.content.lower().startswith('все понятно?'):
@@ -62,12 +64,12 @@ async def on_message(message, answered=False):
         answered = True
 
     if message.content.startswith(code + ' спой'):
-        await bot_tools.start_song(message, bot)
+        await bt.start_song(message, bot)
         answered = True
 
     if message.content.startswith(code + ' дай инфу по'):
         game = str(message.content).split("дай инфу по")[1]
-        answer = bot_tools.get_game_info(game)
+        answer = bt.get_game_info(game)
         if answer:
             await bot.send_message(message.channel, '%s' % answer)
         else:
@@ -76,42 +78,40 @@ async def on_message(message, answered=False):
 
     if message.content.startswith(code + ' замолкни'):
         await bot.send_message(message.channel, 'Ладно-ладно! Молчу!')
-        lib.player.stop()
-        lib.player = None
+        player.stop()
+        bt.set_player(message.server, None)
         answered = True
 
     if message.content.startswith(code + ' тихо'):
-        if lib.player:
-            await bot.send_message(message.channel, bot_tools.q_answer())
-            lib.player.volume = 0.1
+        if player:
+            await bot.send_message(message.channel, bt.q_answer())
+            player.volume = 0.1
         else:
             await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
         answered = True
 
     if message.content.startswith(code + ' громко'):
-        if lib.player:
-            await bot.send_message(message.channel, bot_tools.q_answer())
-            lib.player.volume = 1.0
+        if player:
+            await bot.send_message(message.channel, bt.q_answer())
+            player.volume = 1.0
         else:
             await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
         answered = True
 
     if message.content.startswith(code + ' не шуми'):
-        if lib.player:
-            await bot.send_message(message.channel, bot_tools.q_answer())
-            lib.player.volume = 0.5
+        if player:
+            await bot.send_message(message.channel, bt.q_answer())
+            player.volume = 0.5
         else:
             await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
         answered = True
 
     if 'кто в комнате?' in message.content:
         await bot.send_message(message.channel, 'Тут темно страшно и какой-то паладин лезет обниматься!')
-        lib.player.stop()
         answered = True
 
     if message.content.startswith(code + ' кыкай каст'):
         await bot.send_message(message.channel, 'Сам кыкай %s бака!' % str(message.author).split("#")[0])
-        lib.player.stop()
         answered = True
 
     if message.content.startswith(code + ' ты кто'):
@@ -143,7 +143,7 @@ async def on_message(message, answered=False):
         answered = True
 
     if message.content.startswith(code + ' ты '):
-        await bot.send_message(message.channel, bot_tools.you_answer())
+        await bot.send_message(message.channel, bt.you_answer())
         answered = True
     # check duck-duck-go query (see phrases in lib)
     if message.content.startswith(code):
@@ -151,7 +151,7 @@ async def on_message(message, answered=False):
         ans = await ddg.ask_if_possible(text)
         if ans is not None:
             # found something
-            #TODO catch error: Attempt to decode JSON with unexpected mimetype: application/x-javascript
+            # TODO catch error: Attempt to decode JSON with unexpected mimetype: application/x-javascript
             print("debug ans: ", ans)
             if len(ans.strip()) > 0:
                 await bot.send_message(message.channel, ans)
@@ -187,7 +187,7 @@ async def on_message(message, answered=False):
         #     player.stop()
 
     if message.content.startswith(code + " ") and not answered:
-        await bot.send_message(message.channel, bot_tools.random_answer())
+        await bot.send_message(message.channel, bt.random_answer())
 
 
 # async def wrap(triger, answer):

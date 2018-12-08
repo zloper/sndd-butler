@@ -1,10 +1,11 @@
 from typing import Optional
 import aiohttp
 
-player = None
+players = {}
 
 
 # class Audio():
+#     server = None
 #     player = None
 #
 #     def player_stop(self):
