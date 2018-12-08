@@ -149,7 +149,7 @@ async def on_message(message, answered=False):
     if message.content.startswith(code):
         text = message.content[len(code):]
         ans = await ddg.ask_if_possible(text)
-        if ans != None:
+        if ans is not None:
             # found something
             await bot.send_message(message.channel, bot_tools.you_answer())
             answered = True
