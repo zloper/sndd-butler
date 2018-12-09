@@ -1,13 +1,39 @@
-# from brain import bot
+import os
 import lib
 import random
 import json
 
+
+def get_url(str):
+    str = str.strip()
+    if str.startswith("https://www.youtube.com") or str.startswith("https://youtu.be"):
+        str = str.split(" ")[0]
+    else:
+        str = None
+    return str
+
+async def reset(bot,message):
+    player = set_player(message.server, None)
+    vc = bot.voice_client_in(message.server)
+    if vc:
+        await bot.voice_client_in(message.server).disconnect()
+    player.voice = bot.voice_client_in(message.server)
+    return player
+
+
+def get_token():
+    return os.environ.get("bot_token", "")
+
+
 def get_player(server):
     return lib.players.get(server, None)
 
-def set_player(server, value):
-    lib.players[server] = value
+
+def set_player(server, player):
+    player_obj = lib.Player()
+    player_obj.player = player
+    player_obj.server = server
+    lib.players[server] = player_obj
     return lib.players[server]
 
 
@@ -23,10 +49,11 @@ async def start_song(message, bot):
 
     if player != None:
         player.stop()
+        player.replay = False
 
     if voice_chat:
         player = set_player(message.server, await voice_chat.create_ytdl_player(url))
-        player.volume = 0.5
+        player.vol(0.5)
     else:
         await bot.send_message(message.channel, 'Так меня не услышат Т_Т')
         return

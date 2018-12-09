@@ -63,9 +63,6 @@ async def on_message(message, answered=False):
             await bot.send_message(message.channel, 'что-то не пускает ТТ')
         answered = True
 
-    if message.content.startswith(code + ' спой'):
-        await bt.start_song(message, bot)
-        answered = True
 
     if message.content.startswith(code + ' дай инфу по'):
         game = str(message.content).split("дай инфу по")[1]
@@ -74,36 +71,6 @@ async def on_message(message, answered=False):
             await bot.send_message(message.channel, '%s' % answer)
         else:
             await bot.send_message(message.channel, 'не знаю такой игры =\\')
-        answered = True
-
-    if message.content.startswith(code + ' замолкни'):
-        await bot.send_message(message.channel, 'Ладно-ладно! Молчу!')
-        player.stop()
-        bt.set_player(message.server, None)
-        answered = True
-
-    if message.content.startswith(code + ' тихо'):
-        if player:
-            await bot.send_message(message.channel, bt.q_answer())
-            player.volume = 0.1
-        else:
-            await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
-        answered = True
-
-    if message.content.startswith(code + ' громко'):
-        if player:
-            await bot.send_message(message.channel, bt.q_answer())
-            player.volume = 1.0
-        else:
-            await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
-        answered = True
-
-    if message.content.startswith(code + ' не шуми'):
-        if player:
-            await bot.send_message(message.channel, bt.q_answer())
-            player.volume = 0.5
-        else:
-            await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
         answered = True
 
     if 'кто в комнате?' in message.content:
@@ -128,11 +95,78 @@ async def on_message(message, answered=False):
         """)
         answered = True
 
+
+    # ---------------------------------------- Плеер -----------------------------------------------------
+    if message.content.startswith(code + ' спой'):
+        await bt.start_song(message, bot)
+        answered = True
+
+    if message.content.startswith(code + ' замолкни'):
+        await bot.send_message(message.channel, 'Ладно-ладно! Молчу!')
+        player.stop()
+        player.replay = False
+        answered = True
+
+    if message.content.startswith(code + ' повторяй '):
+        url = bt.get_url(message.content.split("повторяй")[1])
+        if player:
+            player.stop()
+            player.player=None
+        else:
+            player = bt.set_player(message.server, None)
+        player.voice = bot.voice_client_in(message.server)
+        if player.voice:
+            player.replay = True
+            player.repeat(bot, url)
+            await bot.send_message(message.channel, 'Так точно!')
+        else:
+            await bot.send_message(message.channel, 'Но я ведь не в канале ТТ')
+        answered = True
+
     if message.content.startswith(code + ' слейся'):
-        voice_chat = bot.voice_client_in(message.server)
-        await voice_chat.disconnect()
+        await bot.voice_client_in(message.server).disconnect()
+        player.voice = None
         await bot.send_message(message.channel, 'Так точно! Только не ругаетесь! >_<')
         answered = True
+
+    if message.content.startswith(code + ' тихо'):
+        if player:
+            await bot.send_message(message.channel, bt.q_answer())
+            player.vol(0.1)
+        else:
+            await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
+        answered = True
+
+    if message.content.startswith(code + ' громко'):
+        if player:
+            await bot.send_message(message.channel, bt.q_answer())
+            player.vol(1.0)
+        else:
+            await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
+        answered = True
+
+    if message.content.startswith(code + ' не шуми'):
+        if player:
+            await bot.send_message(message.channel, bt.q_answer())
+            player.vol(0.5)
+        else:
+            await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
+        answered = True
+
+    # if message.content.startswith(code + ' добавь в очередь '):
+    #     # TODO queue
+    #     await bot.send_message(message.channel, bt.you_answer())
+    #     answered = True
+
+    if message.content.startswith(code + ' установи громкость '):
+        if player:
+            value = str(message.content).split('установи громкость')[1].strip()
+            await bot.send_message(message.channel, "Хорошо, устанавливаю громкость %s" % value)
+            player.vol(float(value))
+        else:
+            await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
+        answered = True
+    # ---------------------------------------- Плеер -----------------------------------------------------
 
     if message.content.startswith(code + 'wow'):
         await wow.answer(message, bot)

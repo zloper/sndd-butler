@@ -1,16 +1,46 @@
+from queue import Queue
 from typing import Optional
 import aiohttp
+import asyncio
 
 players = {}
 
 
-# class Audio():
-#     server = None
-#     player = None
-#
-#     def player_stop(self):
-#         self.player.stop()
-#         self.player = None
+class Player():
+    server = None
+    player = None
+    voice = None
+    replay = False
+    custom_vol = 0.05
+
+    q = Queue()
+    q.put("https://www.youtube.com/watch?v=FbSNmfLrr6U")
+    q.put("https://www.youtube.com/watch?v=dVR3MpmHHFc")
+
+    def stop(self):
+        if self.player != None:
+            self.player.stop()
+        self.player = None
+
+    def start(self):
+        self.vol(self.custom_vol)
+        self.player.start()
+
+    def vol(self, value):
+        if self.player is not None:
+            try:
+                self.custom_vol = value
+                self.player.volume = value
+            except Exception as ex:
+                print("Не удалось установить громкость", ex)
+
+    async def play_r(self, bot, url):
+        self.player = await self.voice.create_ytdl_player(url, after=lambda: self.repeat(bot, url))
+        self.start()
+
+    def repeat(self, bot, url):
+        if self.voice and self.replay:
+            asyncio.run_coroutine_threadsafe(self.play_r(bot, url), bot.loop)
 
 
 class DuckDuckGo:
