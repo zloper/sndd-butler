@@ -13,9 +13,13 @@ DISCORD_BOT_TOKEN = ''
 code = "сая"
 
 vc = ""
-vip = ['sndd_member','secret']
+vip = ['sndd_member', 'secret']
 
 ddg = lib.DuckDuckGo()
+
+
+def check(message, check_word):
+    return message.content.lower().startswith(code + check_word)
 
 
 @bot.event
@@ -30,8 +34,7 @@ async def on_ready():
 async def on_message(message, answered=False):
     player = bt.get_player(message.server)
 
-    if message.content.startswith(code + ' привет'):
-        print('[command]: hi')
+    if check(message, ' привет'):
         await bot.send_message(message.channel, '%s' % bt.hi_answer())
         answered = True
 
@@ -40,14 +43,14 @@ async def on_message(message, answered=False):
         await bot.send_message(message.channel, 'Всё понятно!')
         answered = True
 
-    if message.content.startswith(code + ' который час?'):
+    if check(message, ' который час?'):
         print('[command]: время')
         tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         name = str(message.author).split("#")[0]
         await bot.send_message(message.channel, '%s господин %s!' % (tm, name))
         answered = True
 
-    if message.content.startswith(code + ' прыгни в канал'):
+    if check(message, ' прыгни в канал'):
         try:
             channel = str(message.content).split('канал')[1].strip()
             is_finded = False
@@ -56,7 +59,7 @@ async def on_message(message, answered=False):
                     roles = bt.get_rolles(message)
                     if not any(role in vip for role in roles):
                         await bot.send_message(message.channel, 'Не я не могу это сделать по вашей просьбе...')
-                        raise Exception("[ERROR]: Not have permision for channel jump, %s" % message.author )
+                        raise Exception("[ERROR]: Not have permision for channel jump, %s" % message.author)
                     vc = bot.voice_client_in(message.server)
                     if vc:
                         await vc.disconnect()
@@ -71,8 +74,7 @@ async def on_message(message, answered=False):
             await bot.send_message(message.channel, 'что-то не пускает ТТ')
         answered = True
 
-
-    if message.content.startswith(code + ' дай инфу по'):
+    if check(message, ' дай инфу по'):
         game = str(message.content).split("дай инфу по")[1]
         answer = bt.get_game_info(game)
         if answer:
@@ -85,16 +87,16 @@ async def on_message(message, answered=False):
         await bot.send_message(message.channel, 'Тут темно страшно и какой-то паладин лезет обниматься!')
         answered = True
 
-    if message.content.startswith(code + ' кыкай каст'):
+    if check(message, ' кыкай каст'):
         await bot.send_message(message.channel, 'Сам кыкай %s бака!' % str(message.author).split("#")[0])
         answered = True
 
-    if message.content.startswith(code + ' ты кто'):
+    if check(message, ' ты кто'):
         await bot.send_message(message.channel, 'Артефакт нейронной сети синедара,'
                                                 ' и по совместительству скромный дворецкий сервера сндд')
         answered = True
 
-    if message.content.startswith(code + ' что ты умеешь?'):
+    if check(message, ' что ты умеешь?'):
         await bot.send_message(message.channel, """
         Я умею петь песенки с youtube. Могу <тихо>, могу <громко>.
         Я могу подсказать время. <который час?>
@@ -103,23 +105,22 @@ async def on_message(message, answered=False):
         """)
         answered = True
 
-
     # ---------------------------------------- Плеер -----------------------------------------------------
-    if message.content.startswith(code + ' спой'):
+    if check(message, ' спой'):
         await bt.start_song(message, bot)
         answered = True
 
-    if message.content.startswith(code + ' замолкни'):
+    if check(message, ' замолкни'):
         await bot.send_message(message.channel, 'Ладно-ладно! Молчу!')
         player.stop()
         player.replay = False
         answered = True
 
-    if message.content.startswith(code + ' повторяй '):
+    if check(message, ' повторяй '):
         url = bt.get_url(message.content.split("повторяй")[1])
         if player:
             player.stop()
-            player.player=None
+            player.player = None
         else:
             player = bt.set_player(message.server, None)
         player.voice = bot.voice_client_in(message.server)
@@ -131,13 +132,13 @@ async def on_message(message, answered=False):
             await bot.send_message(message.channel, 'Но я ведь не в канале ТТ')
         answered = True
 
-    if message.content.startswith(code + ' слейся'):
+    if check(message, ' слейся'):
         await bot.voice_client_in(message.server).disconnect()
         player.voice = None
         await bot.send_message(message.channel, 'Так точно! Только не ругаетесь! >_<')
         answered = True
 
-    if message.content.startswith(code + ' тихо'):
+    if check(message, ' тихо'):
         if player:
             await bot.send_message(message.channel, bt.q_answer())
             player.vol(0.1)
@@ -145,7 +146,7 @@ async def on_message(message, answered=False):
             await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
         answered = True
 
-    if message.content.startswith(code + ' громко'):
+    if check(message, ' громко'):
         if player:
             await bot.send_message(message.channel, bt.q_answer())
             player.vol(1.0)
@@ -153,7 +154,7 @@ async def on_message(message, answered=False):
             await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
         answered = True
 
-    if message.content.startswith(code + ' не шуми'):
+    if check(message, ' не шуми'):
         if player:
             await bot.send_message(message.channel, bt.q_answer())
             player.vol(0.5)
@@ -166,7 +167,7 @@ async def on_message(message, answered=False):
     #     await bot.send_message(message.channel, bt.you_answer())
     #     answered = True
 
-    if message.content.startswith(code + ' установи громкость '):
+    if check(message, ' установи громкость '):
         if player:
             value = str(message.content).split('установи громкость')[1].strip()
             await bot.send_message(message.channel, "Хорошо, устанавливаю громкость %s" % value)
@@ -176,19 +177,19 @@ async def on_message(message, answered=False):
         answered = True
     # ---------------------------------------- Плеер -----------------------------------------------------
 
-    if message.content.startswith(code + 'wow'):
+    if check(message, 'wow'):
         await wow.answer(message, bot)
         answered = True
 
-    if message.content.startswith(code + 'бака'):
+    if check(message, 'бака'):
         await bot.send_message(message.channel, 'Я бака!? Тебя давно в мокушку не кусали?! >_<')
         answered = True
 
-    if message.content.startswith(code + ' ты '):
+    if check(message, ' ты '):
         await bot.send_message(message.channel, bt.you_answer())
         answered = True
     # check duck-duck-go query (see phrases in lib)
-    if message.content.startswith(code):
+    if check(message, ""):
         text = message.content[len(code):]
         ans = await ddg.ask_if_possible(text)
         if ans is not None:
@@ -228,7 +229,7 @@ async def on_message(message, answered=False):
         #     player.volume(0.2)
         #     player.stop()
 
-    if message.content.startswith(code + " ") and not answered:
+    if check(message, " ") and not answered:
         await bot.send_message(message.channel, bt.random_answer())
 
 
