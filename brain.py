@@ -10,7 +10,7 @@ bot = discord.Client()
 
 DISCORD_BOT_TOKEN = ''
 
-code = "sndd"
+code = "сая"
 
 vc = ""
 
