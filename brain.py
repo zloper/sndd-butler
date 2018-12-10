@@ -13,6 +13,7 @@ DISCORD_BOT_TOKEN = ''
 code = "сая"
 
 vc = ""
+vip = ['sndd_member','secret']
 
 ddg = lib.DuckDuckGo()
 
@@ -52,6 +53,13 @@ async def on_message(message, answered=False):
             is_finded = False
             for ch in message.server.channels:
                 if ch.name == channel:
+                    roles = bt.get_rolles(message)
+                    if not any(role in vip for role in roles):
+                        await bot.send_message(message.channel, 'Не я не могу это сделать по вашей просьбе...')
+                        raise Exception("[ERROR]: Not have permision for channel jump, %s" % message.author )
+                    vc = bot.voice_client_in(message.server)
+                    if vc:
+                        await vc.disconnect()
                     await bot.join_voice_channel(ch)
                     is_finded = True
                     await bot.send_message(message.channel, 'Туточки! ^_^')

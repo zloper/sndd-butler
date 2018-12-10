@@ -20,6 +20,12 @@ async def reset(bot,message):
     player.voice = bot.voice_client_in(message.server)
     return player
 
+def get_rolles(message):
+    lst = message.author.roles
+    res=[]
+    for l in lst:
+        res.append(l.name)
+    return res
 
 def get_token():
     return os.environ.get("bot_token", "")
