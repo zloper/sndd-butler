@@ -1,4 +1,7 @@
-from datetime import datetime
+from datetime import datetime, time
+from time import sleep
+
+from mus_module import finder
 import discord
 import sys
 import json
@@ -13,14 +16,12 @@ with open("conf.json", "r") as conf_f:
 env.update(dct)
 
 bot = discord.Client()
-
-DISCORD_BOT_TOKEN = env.get("token","")
+DISCORD_BOT_TOKEN = env.get("token", "")
+env["bot"] = bot
 
 code = "сая"
-
 vc = ""
 vip = ['sndd_member', 'secret']
-
 ddg = lib.DuckDuckGo()
 
 
@@ -39,6 +40,9 @@ async def on_ready():
 @bot.event
 async def on_message(message, answered=False):
     player = bt.get_player(message.server)
+
+    # if message.content.lower().startswith(code + "!"):
+    #     finder(message)
 
     if check(message, ' привет'):
         await bot.send_message(message.channel, '%s' % bt.hi_answer())
@@ -126,7 +130,9 @@ async def on_message(message, answered=False):
         url = bt.get_url(message.content.split("повторяй")[1])
         if player:
             player.stop()
-            player.player = None
+            player.replay = False
+            #TODO crush without sleep - fix later
+            sleep(3)
         else:
             player = bt.set_player(message.server, None)
         player.voice = bot.voice_client_in(message.server)
