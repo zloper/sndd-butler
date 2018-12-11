@@ -1,14 +1,20 @@
 from datetime import datetime
 import discord
 import sys
-
+import json
 import bot_tools as bt
 import lib
 import wow
 
+env = {}
+
+with open("conf.json", "r") as conf_f:
+    dct = json.load(conf_f)
+env.update(dct)
+
 bot = discord.Client()
 
-DISCORD_BOT_TOKEN = ''
+DISCORD_BOT_TOKEN = env.get("token","")
 
 code = "сая"
 
