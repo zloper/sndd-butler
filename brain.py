@@ -1,7 +1,9 @@
+import re
 from datetime import datetime, time
 from time import sleep
 
-from mus_module import finder
+import helper
+import q_module
 import discord
 import sys
 import json
@@ -29,12 +31,36 @@ def check(message, check_word):
     return message.content.lower().startswith(code + check_word)
 
 
+async def check_role(message):
+    roles = bt.get_rolles(message)
+    if not any(role in vip for role in roles):
+        await bot.send_message(message.channel, 'Не я не могу это сделать по вашей просьбе...')
+        raise Exception("[ERROR]: Not have permision for channel jump, %s" % message.author)
+
+
 @bot.event
 async def on_ready():
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
+    q_module.reset()
     print('------')
+
+
+def upd_voites(id, new_count):
+    discript = helper.embed.description
+    curent = discript.split(f"(start_id:{id})")[1].split(f'(end_id:{id})')[0]
+    template = f"(start_id:{id}){curent}(end_id:{id})"
+    new_template = f"(start_id:{id})[{new_count}](end_id:{id})"
+    helper.embed.description = discript.replace(template, new_template)
+
+
+def refresh_description(server=None):
+    voiter_dct = q_module.get_question()
+    for key in voiter_dct.keys():
+        if key != "question":
+            count = len(voiter_dct[key])
+            upd_voites(key, count)
 
 
 @bot.event
@@ -43,6 +69,65 @@ async def on_message(message, answered=False):
 
     # if message.content.lower().startswith(code + "!"):
     #     finder(message)
+
+    if message.content.lower().startswith("!_!"):
+        print(message)
+        print(message.channel)
+        answered = True
+
+    if message.content.lower().startswith("!!"):
+        s_answer = str(message.content).split('!!')[1].strip()
+        answer = int(s_answer)
+
+        q_module.upd_question(answer, message)
+        refresh_description()
+        await bot.edit_message(helper.last_q, embed=helper.embed)
+        answered = True
+
+        # if "Direct Message" not in message.channel:
+        #     q_module.upd_question(answer, message)
+        #     refresh_description()
+        #     await bot.edit_message(helper.last_q, embed=helper.embed)
+        #     answered = True
+        # else:
+        #     serv_arg = re.findall(r'\[\[.*\]\]', message.content)
+        #     if len(serv_arg) > 0:
+        #         serv_arg = str(serv_arg[0])
+        #         server = serv_arg[2:-2]
+        #
+        #         refresh_description(server)
+        #         await bot.edit_message(helper.last_q, embed=helper.embed)
+        #         answered = True
+
+    if check(message, ' замути опрос'):
+        question = str(message.content).split('замути опрос')[1].strip()
+        variants = []
+        server = None
+        img = ""
+        if "[[" in question:
+            serv_arg = re.findall(r'\[\[.*\]\]', question)
+            if len(serv_arg) > 0:
+                serv_arg = str(serv_arg[0])
+                server = serv_arg[2:-2]
+            question = question.replace(serv_arg, "")
+
+        if "((" in question:
+            img_arg = re.findall(r'\(\(.*\)\)', question)
+            if len(img_arg) > 0:
+                img_arg = str(img_arg[0])
+                img = img_arg[2:-2]
+            question = question.replace(img_arg, "")
+
+        if "--" in question:
+            variants = question.split("--")[1:]
+            question = question.split("--")[0]
+
+        await q_module.crt_web_form(message, bot, question, variants, destanation=server, img=img)
+        answered = True
+
+    if check(message, ' сбрось опрос'):
+        q_module.reset()
+        answered = True
 
     if check(message, ' привет'):
         await bot.send_message(message.channel, '%s' % bt.hi_answer())
@@ -66,6 +151,7 @@ async def on_message(message, answered=False):
             is_finded = False
             for ch in message.server.channels:
                 if ch.name == channel:
+                    # TODO change to => check_role(message) <-- need test
                     roles = bt.get_rolles(message)
                     if not any(role in vip for role in roles):
                         await bot.send_message(message.channel, 'Не я не могу это сделать по вашей просьбе...')
@@ -131,7 +217,7 @@ async def on_message(message, answered=False):
         if player:
             player.stop()
             player.replay = False
-            #TODO crush without sleep - fix later
+            # TODO crush without sleep - fix later
             sleep(3)
         else:
             player = bt.set_player(message.server, None)
