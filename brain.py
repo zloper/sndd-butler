@@ -202,6 +202,29 @@ async def on_message(message, answered=False):
         answered = True
 
     # ---------------------------------------- Плеер -----------------------------------------------------
+    if check(message, ' отдать швартовы'):
+        # ++++++++++++ Reset player
+        if player:
+            player.stop()
+            player.replay = False
+            sleep(3)
+        else:
+            player = bt.set_player(message.server, None)
+        # ++++++++++++
+        if bot.voice_client_in(message.server) is not None:
+            await bot.voice_client_in(message.server).disconnect()
+
+        voice_channel = message.author.voice_channel
+        vc = await bot.join_voice_channel(voice_channel)
+        url = "https://www.youtube.com/watch?v=yRh-dzrI4Z4"
+
+        player.voice = vc
+        if player.voice:
+            player.player = await player.voice.create_ytdl_player(url)
+            player.start()
+            await bot.send_message(message.channel, 'Да капитан!')
+        answered = True
+
     if check(message, ' спой'):
         await bt.start_song(message, bot)
         answered = True
