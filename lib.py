@@ -78,7 +78,4 @@ class DuckDuckGo:
         for ph in DuckDuckGo.PHRASES:
             if text.startswith(ph):
                 # find next word
-                parts = text[len(ph):].split(None, 1)
-                if len(parts) < 2:
-                    return None
-                return parts[1]
+                return text[len(ph):].strip()
