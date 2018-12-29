@@ -2,6 +2,7 @@ from queue import Queue
 from typing import Optional
 import aiohttp
 import asyncio
+import re
 
 players = {}
 
@@ -44,12 +45,8 @@ class Player():
 
 
 class DuckDuckGo:
-    PHRASES = {
-        'что такое', 'кто так', 'кто так', 'найди', 'инфа', 'инфу о',
-        'объясни', 'поясни', 'узнай',
-        'what is', 'who is', 'which is',
-        'search', 'query'
-    }
+    PHRASES = re.compile(
+        r'(что|кто|найди|инф\w*|узнай|поясни|объясни|так\w*|о|what|is|who|which|search|query|\s|the|a|есть)+(?P<query>[\w\s\d]+)$')
 
     async def ask(self, query: str) -> Optional[str]:
         params = {
@@ -62,7 +59,7 @@ class DuckDuckGo:
                 if response.status != 200:
                     return None
                 obj = await response.json()
-                return obj.get('AbstractText', None)  # type: Optional[str]
+                return obj.get('AbstractText', None) or None  # type: Optional[str]
 
     async def ask_if_possible(self, query: str) -> Optional[str]:
         trig = self.trigger_word(query)
@@ -75,7 +72,7 @@ class DuckDuckGo:
     @staticmethod
     def trigger_word(text: str) -> Optional[str]:
         text = text.strip()
-        for ph in DuckDuckGo.PHRASES:
-            if text.startswith(ph):
-                # find next word
-                return text[len(ph):].strip()
+        for match in DuckDuckGo.PHRASES.finditer(text):
+            query = match.group('query') or None
+            if query is not None:
+                return query

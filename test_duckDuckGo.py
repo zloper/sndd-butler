@@ -15,10 +15,15 @@ class TestDuckDuckGo(TestCase):
 
     def test_ask_if_possible(self):
         ddg = lib.DuckDuckGo()
-        ans = wait(ddg.ask_if_possible('что такое - день'))
+        ans = wait(ddg.ask_if_possible('что такое - putin'))
         print(ans)
         assert ans is not None
-        ans = wait(ddg.ask_if_possible('что такое день'))
+        ans = wait(ddg.ask_if_possible('что такое putin'))
         assert ans is not None
-        ans = wait(ddg.ask_if_possible('что день'))
+        ans = wait(ddg.ask_if_possible('что putin'))
+        assert ans is not None
+        ans = wait(ddg.ask_if_possible('кто такой putin'))
+        print(ans)
+        assert ans is not None
+        ans = wait(ddg.ask_if_possible('putin'))
         assert ans is None
