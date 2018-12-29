@@ -25,14 +25,20 @@ def refs_to_list(raw_txt):
     return result
 
 
-def get_random_movie(start_year="2010", min_rate="7.0", mv_type="action"):
+def get_random_movie(start_year="2010", min_rate="7.0", mv_type="action", easy_mod=False):
     pages = ["", "start=251&ref_=adv_nxt", "&start=501&ref_=adv_nxt", "&start=751&ref_=adv_nxt",
              "&start=1001&ref_=adv_nxt",
              "&start=1251&ref_=adv_nxt", "&start=1501&ref_=adv_nxt", "&start=1751&ref_=adv_nxt",
              "&start=2001&ref_=adv_nxt"]
     r_page = random.choice(pages)
-
     url = f"{base}search/title?release_date={start_year}-01-01,2018-12-31&user_rating={min_rate},10.0&num_votes=500,&genres={mv_type}&view=simple&count=250{r_page}"
+
+    if easy_mod:
+        companies = ['fox', 'sony', 'dreamworks', 'paramount', 'universal', 'disney', 'warner']
+        company = random.choice(companies)
+
+        url = f"{base}search/title?release_date={start_year}-01-01,2018-12-31&user_rating=,10.0&num_votes=100,&genres={mv_type}&companies={company}&view=simple&count=250"
+
     r = requests.get(url)
     txt = r.text
 
@@ -102,8 +108,14 @@ def open_screen(url):
 def get_and_rm_screen(movie):
     scr_list = movie['screens']
     if len(scr_list) > 0:
-        nums = range(1,len(scr_list))
+        if len(scr_list) == 1:
+            scr = scr_list.pop()
+            movie['screens'] = scr_list
+            save_mv(movie)
+            return scr
+        nums = range(1, len(scr_list))
         rand = random.choice(nums)
+
         scr = scr_list.pop(rand)
         movie['screens'] = scr_list
         save_mv(movie)
@@ -112,8 +124,8 @@ def get_and_rm_screen(movie):
         print("SCREENS ENDED!")
 
 
-def start_game():
-    mv = get_random_movie()
+def start_game(easy_mod=False):
+    mv = get_random_movie(easy_mod=easy_mod)
     movie = parse_film(mv)
     scrn = get_and_rm_screen(movie)
     res = open_screen(scrn)
@@ -154,7 +166,7 @@ def game_try(answer):
         save_mv({})
         return win_words
 
-    #hardcore check
+    # hardcore check
     if ' ' in answer:
         answer = answer.split(' ')
         for title in win_words:
