@@ -3,6 +3,7 @@ from datetime import datetime, time
 from io import BytesIO
 from time import sleep
 
+import cinema_game
 import helper
 import q_module
 import discord
@@ -311,6 +312,43 @@ async def on_message(message, answered=False):
     if check(message, ' ты '):
         await bot.send_message(message.channel, bt.you_answer())
         answered = True
+
+    if check(message, ' запусти игру'):
+        await bot.send_message(message.channel, 'Хорошо! Начинаем викторину!')
+        try:
+            screen = cinema_game.start_game()
+            await bot.send_message(message.channel, screen)
+        except:
+            await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
+        answered = True
+
+    if check(message, ' этот фильм'):
+        answer = str(message.content).split('этот фильм')[1].strip()
+        try:
+            right_answer = cinema_game.game_try(answer)
+            if right_answer:
+                await bot.send_message(message.channel, "Ответ принят. Вы получаете 10 очков")
+                await bot.send_message(message.channel, right_answer)
+            else:
+                await bot.send_message(message.channel, "Неа!")
+        except:
+            await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
+        answered = True
+
+    if check(message, ' дай подсказку'):
+        await bot.send_message(message.channel, 'Ладушки, посмотрим...')
+        try:
+            screen = cinema_game.next_screen()
+            if screen is not None:
+                await bot.send_message(message.channel,'Даю подсказку, но учтите что выйгрыш становится меньше!')
+                await bot.send_message(message.channel, screen)
+            else:
+                await bot.send_message('Увы, больше подсказок нету...')
+        except:
+            await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
+        answered = True
+
+
     # try crypto rates
     if check(message, ""):
         text = message.content[len(code):]
