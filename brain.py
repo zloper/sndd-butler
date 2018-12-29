@@ -1,3 +1,4 @@
+import os
 import re
 from datetime import datetime, time
 from io import BytesIO
@@ -318,6 +319,7 @@ async def on_message(message, answered=False):
         try:
             screen = cinema_game.start_game(easy_mod=True)
             await bot.send_message(message.channel, screen)
+            await bot.send_message(message.channel, "Для ответа напишите '!это название_фильма' для подсказки введите '!подсказка'")
         except:
             await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
         answered = True
@@ -327,8 +329,13 @@ async def on_message(message, answered=False):
         try:
             right_answer = cinema_game.game_try(answer)
             if right_answer:
-                await bot.send_message(message.channel, "Ответ принят. Вы получаете 10 очков")
+                points = cinema_game.get_points()
+                await bot.send_message(message.channel, f"Ответ принят. Вы получаете {points} очков")
+                current_points = cinema_game.add_points_to_user(str(message.author))
                 await bot.send_message(message.channel, right_answer)
+
+                await bot.send_message(message.channel, "Рейтинг игроков: " + str(current_points))
+
                 screen = cinema_game.start_game(easy_mod=True)
                 await bot.send_message(message.channel, "Продолжаем...")
                 await bot.send_message(message.channel, screen)
@@ -341,17 +348,16 @@ async def on_message(message, answered=False):
     if message.content.lower().startswith('!подсказка'):
         await bot.send_message(message.channel, 'Ладушки, посмотрим...')
         try:
-            screen = cinema_game.next_screen()
-            print("!подсказка", screen)
-            if screen is not None:
-                await bot.send_message(message.channel,'Даю подсказку, но учтите что выйгрыш становится меньше!')
-                await bot.send_message(message.channel, screen)
+            tip = cinema_game.get_tip()
+            print("!подсказка", tip)
+            if tip is not None:
+                await bot.send_message(message.channel, 'Даю подсказку, но учтите что выйгрыш становится меньше!')
+                await bot.send_message(message.channel, tip)
             else:
                 await bot.send_message('Увы, больше подсказок нету...')
         except:
             await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
         answered = True
-
 
     # try crypto rates
     if check(message, ""):

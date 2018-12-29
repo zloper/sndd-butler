@@ -1,9 +1,12 @@
+import os
 import random
 
 import requests
 import re
 
 import yaml
+
+import imdb
 
 base = "https://www.imdb.com/"
 
@@ -37,7 +40,7 @@ def get_random_movie(start_year="2010", min_rate="7.0", mv_type="action", easy_m
         companies = ['fox', 'sony', 'dreamworks', 'paramount', 'universal', 'disney', 'warner']
         company = random.choice(companies)
 
-        url = f"{base}search/title?release_date={start_year}-01-01,2018-12-31&user_rating=,10.0&num_votes=100,&genres={mv_type}&companies={company}&view=simple&count=250"
+        url = f"{base}search/title?release_date={start_year}-01-01,2018-12-31&user_rating=,10.0&num_votes=100,&companies={company}&view=simple&count=250"
 
     r = requests.get(url)
     txt = r.text
@@ -53,6 +56,7 @@ def parse_film(url):
     mv_info["url"] = url
     r = requests.get(url)
     txt = r.text
+    mv_obj = imdb.parse_movie(txt)
     title = txt.split('<div class="title_wrapper">')[1]
     title = title.split('</h1>')[0]
     title = title.split("&nbsp")[0].split(">")[1]
@@ -66,7 +70,13 @@ def parse_film(url):
         parent_title = txt.split('<div class="titleParent">')[1].split('title="')[1].split('"')[0]
         parent_title = parent_title.lower().strip()
 
-    mv_info["title"] = [title, orig_title, parent_title]
+    titles = [title, orig_title, parent_title, mv_obj.title]
+    mv_info["title"] = list(filter(None, titles))
+    mv_info["description"] = mv_obj.description.replace("/", " - ").replace("\\", " - ")
+    mv_info["poster"] = mv_obj.poster_url
+    mv_info["genre"] = mv_obj.genre
+    mv_info['actors'] = mv_obj.actors
+    # mv_info['review'] = mv_obj.review
 
     ender = url.split("/")[-1]
     screens_url = url.replace(ender, "mediaindex?ref_=tt_pv_mi_sm")
@@ -125,6 +135,7 @@ def get_and_rm_screen(movie):
 
 
 def start_game(easy_mod=False):
+    set_points(35)
     mv = get_random_movie(easy_mod=easy_mod)
     movie = parse_film(mv)
     scrn = get_and_rm_screen(movie)
@@ -132,12 +143,7 @@ def start_game(easy_mod=False):
     return res
 
 
-def next_screen():
-    movie = get_mv()
-    if movie == {}:
-        print("game not exist")
-        return
-
+def next_screen(movie):
     scrn = get_and_rm_screen(movie)
     print(scrn)
     if scrn is not None:
@@ -183,3 +189,105 @@ def game_try(answer):
 
     print("NO")
     return False
+
+
+def next_text(movie):
+    text = movie['description']
+    for title in movie['title']:
+        text = text.lower().replace(title, "**********")
+    if "." in text:
+        text_list = text.split(".")
+        text_list = list(filter(None, text_list))
+        res = text_list.pop(0)
+        movie['description'] = text.replace(res, "")
+        save_mv(movie)
+        return res
+    else:
+        movie['description'] = ""
+        save_mv(movie)
+        return text
+
+
+def get_points():
+    with open("game_bank", 'a') as f:
+        f.write('')
+    with open("game_bank", 'r') as f:
+        res = (f.read())
+
+    if res.strip() == "":
+        res = 35
+    else:
+        res = int(res)
+    return res
+
+
+def set_points(points):
+    with open("game_bank", 'w') as f:
+        f.write(str(points))
+
+
+def get_tip():
+    points = get_points()
+    movie = get_mv()
+    if movie == {}:
+        print("game not exist")
+        return
+
+    tips_list = ["screen"]
+    if movie.get('genre', "None") != "None":
+        tips_list.append("genre")
+    if movie.get('actors', "None") != "None":
+        tips_list.append("actors")
+    if movie.get('description', ""):
+        txt = movie.get('description', "").replace(".", '').replace("*", '')
+        if len(txt) > 10:
+            tips_list.append("text")
+    roll = random.choice(tips_list)
+
+    res = None
+    if roll == "screen":
+        res = next_screen(movie)
+        if points >= 6:
+            set_points(points - 5)
+    if roll == "text":
+        res = next_text(movie)
+        if points >= 4:
+            set_points(points - 3)
+    if roll == "actors":
+        res = "В ролях: " + str(movie['actors'])
+        movie['actors'] = None
+        save_mv(movie)
+        if points >= 2:
+            set_points(points - 1)
+    if roll == "genre":
+        res = "Жанры: " + str(movie['genre'])
+        movie['genre'] = None
+        save_mv(movie)
+        if points >= 2:
+            set_points(points - 1)
+    return res
+
+
+def get_game_users():
+    if not os.path.exists("user_points.yaml"):
+        return {}
+
+    with open("user_points.yaml", "r") as f:
+        res = f.read()
+        j_res = yaml.load(res)
+        return j_res
+
+
+def upd_game_users(res):
+    with open("user_points.yaml", "w") as f:
+        f.write(str(res))
+        return res
+
+
+def add_points_to_user(user):
+    p = get_points()
+    res = get_game_users()
+    cur_points = int(res.get(user, 0))
+    res[user] = cur_points + p
+    result = upd_game_users(res)
+    return result
