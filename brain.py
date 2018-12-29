@@ -330,14 +330,10 @@ async def on_message(message, answered=False):
             right_answer = cinema_game.game_try(answer)
             if right_answer:
                 points = cinema_game.get_points()
-                await bot.send_message(message.channel, f"Ответ принят. Вы получаете {points} очков")
                 current_points = cinema_game.add_points_to_user(str(message.author))
-                await bot.send_message(message.channel, right_answer)
-
-                await bot.send_message(message.channel, "Рейтинг игроков: " + str(current_points))
-
+                await bot.send_message(message.channel, f"Ответ принят. "+ str(right_answer)+ f" Вы получаете {points} очков." )
+                await bot.send_message(message.channel, "Рейтинг игроков: " + str(current_points) + " Продолжаем...")
                 screen = cinema_game.start_game(easy_mod=True)
-                await bot.send_message(message.channel, "Продолжаем...")
                 await bot.send_message(message.channel, screen)
             else:
                 await bot.send_message(message.channel, "Неа!")
