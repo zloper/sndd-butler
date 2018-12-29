@@ -1,5 +1,6 @@
 import re
 from datetime import datetime, time
+from io import BytesIO
 from time import sleep
 
 import helper
@@ -25,6 +26,7 @@ code = "сая"
 vc = ""
 vip = ['sndd_member', 'secret']
 ddg = lib.DuckDuckGo()
+crypto = lib.CryptoInfo(env.get('crypto_token', ''))
 
 
 def check(message, check_word):
@@ -309,8 +311,19 @@ async def on_message(message, answered=False):
     if check(message, ' ты '):
         await bot.send_message(message.channel, bt.you_answer())
         answered = True
-    # check duck-duck-go query (see phrases in lib)
+    # try crypto rates
     if check(message, ""):
+        text = message.content[len(code):]
+        ans = await crypto.ask_if_possible(text)
+        if ans is not None:
+            if isinstance(ans, str):
+                await bot.send_message(message.channel, ans)
+            else:
+                file = BytesIO(ans)
+                await bot.send_file(message.channel, file, filename='chart.png')
+            answered = True
+    # check duck-duck-go query (see phrases in lib)
+    if not answered and check(message, ""):
         text = message.content[len(code):]
         ans = await ddg.ask_if_possible(text)
         if ans is not None:

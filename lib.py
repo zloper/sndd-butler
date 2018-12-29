@@ -1,13 +1,17 @@
-from queue import Queue
-from typing import Optional
-import aiohttp
 import asyncio
+import json
 import re
+from datetime import datetime, timedelta
+from queue import Queue
+from typing import Optional, NamedTuple, List, Union
+
+import base64
+import aiohttp
 
 players = {}
 
 
-class Player():
+class Player:
     server = None
     player = None
     voice = None
@@ -76,3 +80,76 @@ class DuckDuckGo:
             query = match.group('query') or None
             if query is not None:
                 return query
+
+
+class Rate(NamedTuple):
+    price: float
+    timestamp: datetime
+
+
+class CryptoInfo:
+    PHRASES = re.compile(
+        r'(?P<action>(курс|rate|динамика|chart|график)+)\s+(?P<currency>\w+)$')
+
+    def __init__(self, token: str):
+        self.token = token
+
+    async def get_last_rate(self, currency: str) -> Optional[float]:
+        start = datetime.utcnow() - timedelta(days=1)
+        end = datetime.utcnow() + timedelta(days=1)
+        history = await self.get_rate_history(currency, start, end)
+        if history is not None and len(history) > 0:
+            return history[0].price
+        return 0
+
+    async def get_chart(self, currency: str, start: datetime, end: datetime) -> Optional[bytes]:
+        async with aiohttp.ClientSession() as session:
+            req = json.dumps({
+                "from": start.isoformat() + "Z",
+                "to": end.isoformat() + "Z",
+                "currency": currency,
+                "token": self.token,
+            })
+            async with session.post('http://data.mutalk.net/crypto/chart', data=req,
+                                    headers={'Content-Type': 'application/json'}) as response:
+                if response.status != 200:
+                    return None
+                ans = await response.json()
+                if ans is None:
+                    return None
+                return base64.decodebytes(ans.encode())
+
+    async def get_chart_last_week(self, currency) -> Optional[bytearray]:
+        start = datetime.utcnow() - timedelta(days=7)
+        end = datetime.utcnow()
+        return await self.get_chart(currency, start, end)
+
+    async def get_rate_history(self, currency: str, start: datetime, end: datetime) -> Optional[List[Rate]]:
+        async with aiohttp.ClientSession() as session:
+            req = json.dumps({
+                "from": start.isoformat() + "Z",
+                "to": end.isoformat() + "Z",
+                "currency": currency,
+                "token": self.token,
+            })
+            async with session.post('http://data.mutalk.net/crypto/history', data=req,
+                                    headers={'Content-Type': 'application/json'}) as response:
+                if response.status != 200:
+                    return None
+                ans = await response.json()
+
+                return [Rate(x['price'], datetime.utcfromtimestamp(x['timestamp'])) for x in ans]
+
+    async def ask_if_possible(self, text: str) -> Optional[Union[str, bytearray]]:
+        for match in CryptoInfo.PHRASES.finditer(text):
+            currency = match.group('currency') or None
+            action = match.group('action') or None
+            if currency is None or action is None:
+                return None
+            if 'rate' in action or 'курс' in action:
+                rate = await self.get_last_rate(currency)
+                if rate is None:
+                    return None
+                return f'насколько я знаю, сейчас один {currency} стоит ${rate}'
+            else:
+                return await self.get_chart_last_week(currency)
