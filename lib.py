@@ -99,7 +99,7 @@ class CryptoInfo:
         end = datetime.utcnow() + timedelta(days=1)
         history = await self.get_rate_history(currency, start, end)
         if history is not None and len(history) > 0:
-            return history[0].price
+            return history[-1].price
         return 0
 
     async def get_chart(self, currency: str, start: datetime, end: datetime) -> Optional[bytes]:
