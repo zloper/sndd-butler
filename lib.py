@@ -153,3 +153,21 @@ class CryptoInfo:
                 return f'насколько я знаю, сейчас один {currency} стоит ${rate}'
             else:
                 return await self.get_chart_last_week(currency)
+
+
+class Calculator:
+    PHRASES = re.compile(r'(?P<action>(посчитай|сколько будет|calc)+)\s+(?P<expr>.+)$')
+
+    async def ask(self, expr: str) -> Optional[str]:
+        try:
+            return str(eval(expr))
+        except:
+            return None
+
+    async def ask_if_possible(self, text: str) -> Optional[str]:
+        for match in Calculator.PHRASES.finditer(text):
+            expr = match.group('expr') or None
+            action = match.group('action') or None
+            if expr is None or action is None:
+                return None
+            return await self.ask(expr)

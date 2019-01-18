@@ -57,9 +57,3 @@ def parse_movie(content: str) -> Movie:
                  review=meta_data.get('review', {'reviewBody': ''})['reviewBody'],
                  images=images,
                  )
-
-
-if __name__ == '__main__':
-    with open('sample.html', 'rt') as f:
-        content = f.read()
-    movie = parse_movie(content)

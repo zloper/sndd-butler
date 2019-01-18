@@ -29,6 +29,7 @@ vc = ""
 vip = ['sndd_member', 'secret']
 ddg = lib.DuckDuckGo()
 crypto = lib.CryptoInfo(env.get('crypto_token', ''))
+calc = lib.Calculator()
 
 
 def check(message, check_word):
@@ -319,7 +320,8 @@ async def on_message(message, answered=False):
         try:
             screen = cinema_game.start_game(easy_mod=True)
             await bot.send_message(message.channel, screen)
-            await bot.send_message(message.channel, "Для ответа напишите '!это название_фильма' для подсказки введите '!подсказка'")
+            await bot.send_message(message.channel,
+                                   "Для ответа напишите '!это название_фильма' для подсказки введите '!подсказка'")
         except:
             await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
         answered = True
@@ -331,7 +333,8 @@ async def on_message(message, answered=False):
             if right_answer:
                 points = cinema_game.get_points()
                 current_points = cinema_game.add_points_to_user(str(message.author))
-                await bot.send_message(message.channel, f"Ответ принят. "+ str(right_answer)+ f" Вы получаете {points} очков." )
+                await bot.send_message(message.channel,
+                                       f"Ответ принят. " + str(right_answer) + f" Вы получаете {points} очков.")
                 await bot.send_message(message.channel, "Рейтинг игроков: " + str(current_points) + " Продолжаем...")
                 screen = cinema_game.start_game(easy_mod=True)
                 await bot.send_message(message.channel, screen)
@@ -366,6 +369,14 @@ async def on_message(message, answered=False):
                 file = BytesIO(ans)
                 await bot.send_file(message.channel, file, filename='chart.png')
             answered = True
+    # calc
+    if not answered and check(message, ""):
+        text = message.content[len(code):]
+        ans = await calc.ask_if_possible(text)
+        if ans is not None:
+            await bot.send_message(message.channel, ans)
+            answered = True
+
     # check duck-duck-go query (see phrases in lib)
     if not answered and check(message, ""):
         text = message.content[len(code):]
