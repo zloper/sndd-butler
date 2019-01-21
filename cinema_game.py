@@ -96,13 +96,15 @@ def parse_film(url):
     return mv_info
 
 
-def save_mv(dct):
-    with open("movie_game.yaml", "w") as f:
+def save_mv(dct, server):
+    # TODO set server name
+    with open("%s_movie_game.yaml" % (server), "w") as f:
         f.write(str(dct))
 
 
-def get_mv():
-    with open("movie_game.yaml", "r") as f:
+def get_mv(server):
+    # TODO get server name
+    with open("%s_movie_game.yaml" % (server), "r") as f:
         res = f.read()
         j_res = yaml.load(res)
     return j_res
@@ -115,36 +117,36 @@ def open_screen(url):
     return screens[0]
 
 
-def get_and_rm_screen(movie):
+def get_and_rm_screen(movie,server):
     scr_list = movie['screens']
     if len(scr_list) > 0:
         if len(scr_list) == 1:
             scr = scr_list.pop()
             movie['screens'] = scr_list
-            save_mv(movie)
+            save_mv(movie,server)
             return scr
         nums = range(1, len(scr_list))
         rand = random.choice(nums)
 
         scr = scr_list.pop(rand)
         movie['screens'] = scr_list
-        save_mv(movie)
+        save_mv(movie,server)
         return scr
     else:
         print("SCREENS ENDED!")
 
 
-def start_game(easy_mod=False):
+def start_game(server, easy_mod=False):
     set_points(35)
     mv = get_random_movie(easy_mod=easy_mod)
     movie = parse_film(mv)
-    scrn = get_and_rm_screen(movie)
+    scrn = get_and_rm_screen(movie,server)
     res = open_screen(scrn)
     return res
 
 
-def next_screen(movie):
-    scrn = get_and_rm_screen(movie)
+def next_screen(movie,server):
+    scrn = get_and_rm_screen(movie,server)
     print(scrn)
     if scrn is not None:
         res = open_screen(scrn)
@@ -155,8 +157,8 @@ def next_screen(movie):
         return None
 
 
-def game_try(answer):
-    movie = get_mv()
+def game_try(answer,server):
+    movie = get_mv(server)
     if movie == {}:
         print("game not exist")
         return False
@@ -169,7 +171,7 @@ def game_try(answer):
 
     if answer in win_words:
         print("YES!")
-        save_mv({})
+        save_mv({},server)
         return win_words
 
     # hardcore check
@@ -184,14 +186,14 @@ def game_try(answer):
                     hit += 1
             if hit >= len(answer) - 1:
                 print("some yes...")
-                save_mv({})
+                save_mv({},server)
                 return win_words
 
     print("NO")
     return False
 
 
-def next_text(movie):
+def next_text(movie,server):
     text = movie['description']
     for title in movie['title']:
         text = text.lower().replace(title, "**********")
@@ -200,11 +202,11 @@ def next_text(movie):
         text_list = list(filter(None, text_list))
         res = text_list.pop(0)
         movie['description'] = text.replace(res, "")
-        save_mv(movie)
+        save_mv(movie,server)
         return res
     else:
         movie['description'] = ""
-        save_mv(movie)
+        save_mv(movie,server)
         return text
 
 
@@ -226,9 +228,9 @@ def set_points(points):
         f.write(str(points))
 
 
-def get_tip():
+def get_tip(server):
     points = get_points()
-    movie = get_mv()
+    movie = get_mv(server)
     if movie == {}:
         print("game not exist")
         return
@@ -246,23 +248,23 @@ def get_tip():
 
     res = None
     if roll == "screen":
-        res = next_screen(movie)
+        res = next_screen(movie,server)
         if points >= 6:
             set_points(points - 5)
     if roll == "text":
-        res = next_text(movie)
+        res = next_text(movie,server)
         if points >= 4:
             set_points(points - 3)
     if roll == "actors":
         res = "В ролях: " + str(movie['actors'])
         movie['actors'] = None
-        save_mv(movie)
+        save_mv(movie,server)
         if points >= 2:
             set_points(points - 1)
     if roll == "genre":
         res = "Жанры: " + str(movie['genre'])
         movie['genre'] = None
-        save_mv(movie)
+        save_mv(movie,server)
         if points >= 2:
             set_points(points - 1)
     return res

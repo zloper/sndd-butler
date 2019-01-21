@@ -80,6 +80,14 @@ async def on_message(message, answered=False):
         print(message.channel)
         answered = True
 
+    if check(message, ' что ты умеешь'):
+        import help_parser
+        with open('brain.py','r') as f:
+            txt=f.read()
+        txt=help_parser.parse(txt)
+        await bot.send_message(message.channel, txt)
+        answered = True
+
     if message.content.lower().startswith("!!"):
         s_answer = str(message.content).split('!!')[1].strip()
         answer = int(s_answer)
@@ -105,6 +113,9 @@ async def on_message(message, answered=False):
         #         answered = True
 
     if check(message, ' замути опрос'):
+        """info
+           Умею создавать опросы, команда: <замути опрос> текст-вопроса --ответ1 --ответ2 ((url-кратинки-для-опроса))
+        info"""
         question = str(message.content).split('замути опрос')[1].strip()
         variants = []
         server = None
@@ -131,6 +142,9 @@ async def on_message(message, answered=False):
         answered = True
 
     if check(message, ' сбрось опрос'):
+        """info
+            Могу сбросить опрос, команда: <сбрось опрос>
+         info"""
         q_module.reset()
         answered = True
 
@@ -144,6 +158,9 @@ async def on_message(message, answered=False):
         answered = True
 
     if check(message, ' который час?'):
+        """info
+            Могу подсказать время, команда: <который час?>
+         info"""
         print('[command]: время')
         tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         name = str(message.author).split("#")[0]
@@ -151,6 +168,9 @@ async def on_message(message, answered=False):
         answered = True
 
     if check(message, ' прыгни в канал'):
+        """info
+            Могу скакать по каналам, команда: <прыгни в канал>
+         info"""
         try:
             channel = str(message.content).split('канал')[1].strip()
             is_finded = False
@@ -176,6 +196,9 @@ async def on_message(message, answered=False):
         answered = True
 
     if check(message, ' дай инфу по'):
+        """info
+            Могу дать информацию по некоторым играм, команда: <дай инфу по>
+         info"""
         game = str(message.content).split("дай инфу по")[1]
         answer = bt.get_game_info(game)
         if answer:
@@ -195,15 +218,6 @@ async def on_message(message, answered=False):
     if check(message, ' ты кто'):
         await bot.send_message(message.channel, 'Артефакт нейронной сети синедара,'
                                                 ' и по совместительству скромный дворецкий сервера сндд')
-        answered = True
-
-    if check(message, ' что ты умеешь?'):
-        await bot.send_message(message.channel, """
-        Я умею петь песенки с youtube. Могу <тихо>, могу <громко>.
-        Я могу подсказать время. <который час?>
-        Могу патрулировать каналы этого сервера <прыгни в канал>
-        Могу помочь с ссылками по играм. <дай инфу по>
-        """)
         answered = True
 
     # ---------------------------------------- Плеер -----------------------------------------------------
@@ -231,16 +245,25 @@ async def on_message(message, answered=False):
         answered = True
 
     if check(message, ' спой'):
+        """info
+            Могу спеть, команда: <спой> url_трека_на_youtube
+         info"""
         await bt.start_song(message, bot)
         answered = True
 
     if check(message, ' замолкни'):
+        """info
+            Могу перестать петь, команда: <замолкни>
+         info"""
         await bot.send_message(message.channel, 'Ладно-ладно! Молчу!')
         player.stop()
         player.replay = False
         answered = True
 
     if check(message, ' повторяй '):
+        """info
+            Могу повторять песню, команда: <повторяй> url-трека-на-youtube
+         info"""
         url = bt.get_url(message.content.split("повторяй")[1])
         if player:
             player.stop()
@@ -259,12 +282,18 @@ async def on_message(message, answered=False):
         answered = True
 
     if check(message, ' слейся'):
+        """info
+            Могу покинуть канал, команда: <слейся>
+         info"""
         await bot.voice_client_in(message.server).disconnect()
         player.voice = None
         await bot.send_message(message.channel, 'Так точно! Только не ругаетесь! >_<')
         answered = True
 
     if check(message, ' тихо'):
+        """info
+           Могу петь тихо, команда: <тихо>
+        info"""
         if player:
             await bot.send_message(message.channel, bt.q_answer())
             player.vol(0.1)
@@ -273,6 +302,9 @@ async def on_message(message, answered=False):
         answered = True
 
     if check(message, ' громко'):
+        """info
+           Могу петь громко, команда: <громко>
+        info"""
         if player:
             await bot.send_message(message.channel, bt.q_answer())
             player.vol(1.0)
@@ -281,6 +313,9 @@ async def on_message(message, answered=False):
         answered = True
 
     if check(message, ' не шуми'):
+        """info
+           Могу установить среднюю громкость, команда: <не шуми>
+        info"""
         if player:
             await bot.send_message(message.channel, bt.q_answer())
             player.vol(0.5)
@@ -294,6 +329,9 @@ async def on_message(message, answered=False):
     #     answered = True
 
     if check(message, ' установи громкость '):
+        """info
+            Могу установить громкость по вашему желанию, команда: <установи громкость> 0.09
+        info"""
         if player:
             value = str(message.content).split('установи громкость')[1].strip()
             await bot.send_message(message.channel, "Хорошо, устанавливаю громкость %s" % value)
@@ -316,9 +354,12 @@ async def on_message(message, answered=False):
         answered = True
 
     if check(message, ' запусти игру'):
+        """info
+            Могу устраивать викторины, команда: <запусти игру>
+        info"""
         await bot.send_message(message.channel, 'Хорошо! Начинаем викторину!')
         try:
-            screen = cinema_game.start_game(easy_mod=True)
+            screen = cinema_game.start_game(message.server,easy_mod=True)
             await bot.send_message(message.channel, screen)
             await bot.send_message(message.channel,
                                    "Для ответа напишите '!это название_фильма' для подсказки введите '!подсказка'")
@@ -329,14 +370,14 @@ async def on_message(message, answered=False):
     if message.content.lower().startswith("!это"):
         answer = str(message.content).split('!это')[1].strip()
         try:
-            right_answer = cinema_game.game_try(answer)
+            right_answer = cinema_game.game_try(answer,message.server)
             if right_answer:
                 points = cinema_game.get_points()
                 current_points = cinema_game.add_points_to_user(str(message.author))
                 await bot.send_message(message.channel,
                                        f"Ответ принят. " + str(right_answer) + f" Вы получаете {points} очков.")
                 await bot.send_message(message.channel, "Рейтинг игроков: " + str(current_points) + " Продолжаем...")
-                screen = cinema_game.start_game(easy_mod=True)
+                screen = cinema_game.start_game(message.server,easy_mod=True)
                 await bot.send_message(message.channel, screen)
             else:
                 await bot.send_message(message.channel, "Неа!")
@@ -347,7 +388,7 @@ async def on_message(message, answered=False):
     if message.content.lower().startswith('!подсказка'):
         await bot.send_message(message.channel, 'Ладушки, посмотрим...')
         try:
-            tip = cinema_game.get_tip()
+            tip = cinema_game.get_tip(message.server)
             print("!подсказка", tip)
             if tip is not None:
                 await bot.send_message(message.channel, 'Даю подсказку, но учтите что выйгрыш становится меньше!')
@@ -360,6 +401,9 @@ async def on_message(message, answered=False):
 
     # try crypto rates
     if check(message, ""):
+        """info
+            Могу подсказать динамику криптовалюты, команда: <динамика>/<какой курс> валюта
+        info"""
         text = message.content[len(code):]
         ans = await crypto.ask_if_possible(text)
         if ans is not None:
@@ -371,6 +415,9 @@ async def on_message(message, answered=False):
             answered = True
     # calc
     if not answered and check(message, ""):
+        """info
+            Могу считать, команда: <посчитай> 2+2
+        info"""
         text = message.content[len(code):]
         ans = await calc.ask_if_possible(text)
         if ans is not None:
@@ -379,6 +426,9 @@ async def on_message(message, answered=False):
 
     # check duck-duck-go query (see phrases in lib)
     if not answered and check(message, ""):
+        """info
+            Могу подсказывать определения, команда: <что такое> вопрос
+        info"""
         text = message.content[len(code):]
         ans = await ddg.ask_if_possible(text)
         if ans is not None:
