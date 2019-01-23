@@ -1,4 +1,7 @@
 import os
+
+from datetime import datetime, time
+
 import lib
 import random
 import json
@@ -12,7 +15,8 @@ def get_url(str):
         str = None
     return str
 
-async def reset(bot,message):
+
+async def reset(bot, message):
     player = set_player(message.server, None)
     vc = bot.voice_client_in(message.server)
     if vc:
@@ -20,12 +24,14 @@ async def reset(bot,message):
     player.voice = bot.voice_client_in(message.server)
     return player
 
+
 def get_rolles(message):
     lst = message.author.roles
-    res=[]
+    res = []
     for l in lst:
         res.append(l.name)
     return res
+
 
 def get_token():
     return os.environ.get("bot_token", "")
@@ -75,6 +81,14 @@ def random_answer():
     with open("random_answers.json", "r") as f:
         answers = json.load(f)
     return random.choice(answers)
+
+
+def log(txt):
+    tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    full_str = "[%s]: %s \n" % (str(tm), str(txt))
+    with open("bot_log.log", "a") as f:
+        f.write(full_str)
+        print(full_str)
 
 
 def you_answer():

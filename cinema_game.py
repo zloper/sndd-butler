@@ -211,9 +211,9 @@ def next_text(movie,server):
 
 
 def get_points():
-    with open("game_bank", 'a') as f:
+    with open("game_bank.log", 'a') as f:
         f.write('')
-    with open("game_bank", 'r') as f:
+    with open("game_bank.log", 'r') as f:
         res = (f.read())
 
     if res.strip() == "":
@@ -224,7 +224,7 @@ def get_points():
 
 
 def set_points(points):
-    with open("game_bank", 'w') as f:
+    with open("game_bank.log", 'w') as f:
         f.write(str(points))
 
 

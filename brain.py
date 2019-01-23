@@ -363,7 +363,8 @@ async def on_message(message, answered=False):
             await bot.send_message(message.channel, screen)
             await bot.send_message(message.channel,
                                    "Для ответа напишите '!это название_фильма' для подсказки введите '!подсказка'")
-        except:
+        except Exception as ex:
+            bt.log(ex)
             await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
         answered = True
 
@@ -381,7 +382,8 @@ async def on_message(message, answered=False):
                 await bot.send_message(message.channel, screen)
             else:
                 await bot.send_message(message.channel, "Неа!")
-        except:
+        except Exception as ex:
+            bt.log(ex)
             await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
         answered = True
 
@@ -395,7 +397,8 @@ async def on_message(message, answered=False):
                 await bot.send_message(message.channel, tip)
             else:
                 await bot.send_message('Увы, больше подсказок нету...')
-        except:
+        except Exception as ex:
+            bt.log(ex)
             await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
         answered = True
 
