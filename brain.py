@@ -114,6 +114,9 @@ async def on_message(message, answered=False):
         #         answered = True
 
     if check(message, '!'):
+        """info
+          Могу выдать аниме coub: <сая! давай аниме> и если приглянулась мелодия могу дать ссылку на трек <сая! скинь трек>
+       info"""
         answr = mus_module.finder(message)
         if answr is not None:
             await bot.send_message(message.channel, answr)
