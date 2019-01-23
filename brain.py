@@ -6,6 +6,7 @@ from time import sleep
 
 import cinema_game
 import helper
+import mus_module
 import q_module
 import discord
 import sys
@@ -111,6 +112,13 @@ async def on_message(message, answered=False):
         #         refresh_description(server)
         #         await bot.edit_message(helper.last_q, embed=helper.embed)
         #         answered = True
+
+    if check(message, '!'):
+        answr = mus_module.finder(message)
+        if answr is not None:
+            await bot.send_message(message.channel, answr)
+            answered = True
+
 
     if check(message, ' замути опрос'):
         """info
