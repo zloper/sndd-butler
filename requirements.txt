@@ -2,3 +2,4 @@ discord
 aiohttp
 pyyaml
 requests
+pyquery

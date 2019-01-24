@@ -14,6 +14,10 @@ import json
 import bot_tools as bt
 import lib
 import wow
+from root import root
+
+# import modules to load them to knowledge
+import general
 
 env = {}
 
@@ -83,9 +87,9 @@ async def on_message(message, answered=False):
 
     if check(message, ' что ты умеешь'):
         import help_parser
-        with open('brain.py','r') as f:
-            txt=f.read()
-        txt=help_parser.parse(txt)
+        with open('brain.py', 'r') as f:
+            txt = f.read()
+        txt = help_parser.parse(txt)
         await bot.send_message(message.channel, txt)
         answered = True
 
@@ -121,7 +125,6 @@ async def on_message(message, answered=False):
         if answr is not None:
             await bot.send_message(message.channel, answr)
             answered = True
-
 
     if check(message, ' замути опрос'):
         """info
@@ -370,7 +373,7 @@ async def on_message(message, answered=False):
         info"""
         await bot.send_message(message.channel, 'Хорошо! Начинаем викторину!')
         try:
-            screen = cinema_game.start_game(message.server,easy_mod=True)
+            screen = cinema_game.start_game(message.server, easy_mod=True)
             await bot.send_message(message.channel, screen)
             await bot.send_message(message.channel,
                                    "Для ответа напишите '!это название_фильма' для подсказки введите '!подсказка'")
@@ -382,14 +385,14 @@ async def on_message(message, answered=False):
     if message.content.lower().startswith("!это"):
         answer = str(message.content).split('!это')[1].strip()
         try:
-            right_answer = cinema_game.game_try(answer,message.server)
+            right_answer = cinema_game.game_try(answer, message.server)
             if right_answer:
                 points = cinema_game.get_points()
                 current_points = cinema_game.add_points_to_user(str(message.author))
                 await bot.send_message(message.channel,
                                        f"Ответ принят. " + str(right_answer) + f" Вы получаете {points} очков.")
                 await bot.send_message(message.channel, "Рейтинг игроков: " + str(current_points) + " Продолжаем...")
-                screen = cinema_game.start_game(message.server,easy_mod=True)
+                screen = cinema_game.start_game(message.server, easy_mod=True)
                 await bot.send_message(message.channel, screen)
             else:
                 await bot.send_message(message.channel, "Неа!")
@@ -437,6 +440,15 @@ async def on_message(message, answered=False):
         if ans is not None:
             await bot.send_message(message.channel, ans)
             answered = True
+
+    reply = await root(message.content)
+    if reply is not None:
+        if isinstance(reply, str):
+            await bot.send_message(message.channel, reply)
+        else:
+            file = BytesIO(reply)
+            await bot.send_file(message.channel, file, filename='chart.png')
+        answered = True
 
     # check duck-duck-go query (see phrases in lib)
     if not answered and check(message, ""):

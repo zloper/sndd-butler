@@ -23,6 +23,12 @@ class TestKnowledge(TestCase):
         async def skip_none(message: str):
             return None
 
+        @brain.simple('multi')
+        @brain.simple('another')
+        @brain.regexp('.*?nano.*')
+        async def multi(message: str):
+            return 'ok'
+
         @brain.default()
         async def unknown(message: str):
             return "WTF?"
@@ -34,6 +40,9 @@ class TestKnowledge(TestCase):
             assert await brain('alice raise an error') == 'WTF?', 'suppress exception'
             assert await brain('alice skip none') == 'WTF?', 'skip none result'
             assert await brain('bob who are you?') == 'WTF?', 'default trigger'
+            assert await brain('alice multi') == 'ok', 'multi triggers over first simple'
+            assert await brain('alice another') == 'ok', 'multi triggers over second simple'
+            assert await brain('alice super nano multi') == 'ok', 'multi triggers over regexp'
 
         asyncio.get_event_loop().run_until_complete(main())
 
