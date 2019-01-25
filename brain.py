@@ -85,13 +85,6 @@ async def on_message(message, answered=False):
         print(message.channel)
         answered = True
 
-    if check(message, ' что ты умеешь'):
-        import help_parser
-        with open('brain.py', 'r') as f:
-            txt = f.read()
-        txt = help_parser.parse(txt)
-        await bot.send_message(message.channel, txt)
-        answered = True
 
     if message.content.lower().startswith("!!"):
         s_answer = str(message.content).split('!!')[1].strip()
@@ -162,9 +155,6 @@ async def on_message(message, answered=False):
         q_module.reset()
         answered = True
 
-    if check(message, ' привет'):
-        await bot.send_message(message.channel, '%s' % bt.hi_answer())
-        answered = True
 
     if message.content.lower().startswith('все понятно?'):
         print('[command]: все понятно')
@@ -229,10 +219,6 @@ async def on_message(message, answered=False):
         await bot.send_message(message.channel, 'Сам кыкай %s бака!' % str(message.author).split("#")[0])
         answered = True
 
-    if check(message, ' ты кто'):
-        await bot.send_message(message.channel, 'Артефакт нейронной сети синедара,'
-                                                ' и по совместительству скромный дворецкий сервера сндд')
-        answered = True
 
     # ---------------------------------------- Плеер -----------------------------------------------------
     if check(message, ' отдать швартовы'):
@@ -357,14 +343,6 @@ async def on_message(message, answered=False):
 
     if check(message, 'wow'):
         await wow.answer(message, bot)
-        answered = True
-
-    if check(message, 'бака'):
-        await bot.send_message(message.channel, 'Я бака!? Тебя давно в мокушку не кусали?! >_<')
-        answered = True
-
-    if check(message, ' ты '):
-        await bot.send_message(message.channel, bt.you_answer())
         answered = True
 
     if check(message, ' запусти игру'):
@@ -496,12 +474,5 @@ async def on_message(message, answered=False):
 
     if check(message, " ") and not answered:
         await bot.send_message(message.channel, bt.random_answer())
-
-
-# async def wrap(triger, answer):
-#     if message.content.startswith(code + ' что ты умеешь?'):
-#         await bot.send_message(message.channel, 'Тут темно страшно и какой-то паладин лезет обниматься!')
-#         answered = True
-
 
 bot.run(DISCORD_BOT_TOKEN)
