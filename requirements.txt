@@ -3,4 +3,6 @@ aiohttp
 pyyaml
 requests
 pyquery
+youtube_dl
+opuslib
 #required discord.py==0.16.12
