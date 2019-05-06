@@ -3,3 +3,4 @@ aiohttp
 pyyaml
 requests
 pyquery
+#required discord.py==0.16.12
