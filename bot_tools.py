@@ -149,7 +149,7 @@ async def send_news(bot, news_theme, news_text):
     chls = get_news_chls()
     for id in chls:
         chl = bot.get_channel(id)
-        await news_module.news_form(chl, bot, news_theme, news_text, img="")
+        await news_module.news_form(chl, bot, news_theme, news_text, img="https://b.radikal.ru/b38/1905/96/4ace2aef7ced.gif")
 
 
 def find_best_ser(cur, days):
