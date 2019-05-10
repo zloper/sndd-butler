@@ -4,6 +4,10 @@ from datetime import datetime, time
 from io import BytesIO
 from time import sleep
 
+import asyncio
+
+import requests
+
 import cinema_game
 import helper
 import mus_module
@@ -15,15 +19,16 @@ import bot_tools as bt
 import lib
 import wow
 from root import root
+from bot_tools import env as env
 
 # import modules to load them to knowledge
 import general
 
-env = {}
-
-with open("conf.json", "r") as conf_f:
-    dct = json.load(conf_f)
-env.update(dct)
+# env = {}
+#
+# with open("conf.json", "r") as conf_f:
+#     dct = json.load(conf_f)
+# env.update(dct)
 
 bot = discord.Client()
 DISCORD_BOT_TOKEN = env.get("token", "")
@@ -56,6 +61,26 @@ async def on_ready():
     q_module.reset()
     print('------')
 
+    # start bg tasks
+    saved_dt = datetime.now().strftime('%Y-%m-%d')
+    while True:
+        # ================= New hour block
+        tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_dt = datetime.now().strftime('%Y-%m-%d')
+        print("start bg tasks", tm)
+        print('- Is new day started? -', current_dt != saved_dt)
+        if current_dt != saved_dt:
+            saved_dt = current_dt
+            # ================= New day block
+            if env.get("ser_url", None) is not None:
+                url = env.get("ser_url", None)
+                res = requests.get("%s/GetLastMonth" % url)  # upd information from cbr
+                print("Upd info:", res.text)
+
+                await bt.check_today_price(bot, current_dt)
+
+        await asyncio.sleep(60 * 60)  # 1 hour
+
 
 def upd_voites(id, new_count):
     discript = helper.embed.description
@@ -80,11 +105,23 @@ async def on_message(message, answered=False):
     # if message.content.lower().startswith(code + "!"):
     #     finder(message)
 
+    if check(message, ' курс валюты'):
+        cur = str(message.content).split('валюты')[1].strip()
+        res = bt.get_current_ser(cur)
+        await bot.send_message(message.channel, 'Да шеф!\n %s' % res)
+        answered = True
+
+    if check(message, ' нужна инфа по каналу'):
+        await bot.send_message(message.channel,
+                               'Да шеф! Гляну последние новости ЦБ:\n channel name:%s\n channel id:%s' % (
+                                   str(message.channel),
+                                   str(message.channel.id)))
+        answered = True
+
     if message.content.lower().startswith("!_!"):
         print(message)
         print(message.channel)
         answered = True
-
 
     if message.content.lower().startswith("!!"):
         s_answer = str(message.content).split('!!')[1].strip()
@@ -155,7 +192,6 @@ async def on_message(message, answered=False):
         q_module.reset()
         answered = True
 
-
     if message.content.lower().startswith('все понятно?'):
         print('[command]: все понятно')
         await bot.send_message(message.channel, 'Всё понятно!')
@@ -218,7 +254,6 @@ async def on_message(message, answered=False):
     if check(message, ' кыкай каст'):
         await bot.send_message(message.channel, 'Сам кыкай %s бака!' % str(message.author).split("#")[0])
         answered = True
-
 
     # ---------------------------------------- Плеер -----------------------------------------------------
     if check(message, ' отдать швартовы'):
@@ -474,5 +509,6 @@ async def on_message(message, answered=False):
 
     if check(message, " ") and not answered:
         await bot.send_message(message.channel, bt.random_answer())
+
 
 bot.run(DISCORD_BOT_TOKEN)

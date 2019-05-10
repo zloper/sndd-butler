@@ -2,10 +2,15 @@ import os
 
 from datetime import datetime, time
 
+import requests
 import lib
 import random
 import json
 
+env = {}
+with open("conf.json", "r") as conf_f:
+    dct = json.load(conf_f)
+env.update(dct)
 
 def get_url(str):
     str = str.strip()
@@ -113,6 +118,63 @@ def hi_answer():
                'Хайюшки! >_<',
                'Привет! :)']
     return random.choice(answers)
+
+
+async def check_today_price(bot, current_dt):
+    
+    cur = env.get("currency_check", "GBP")
+    for days_count in [7, 14]:
+        answr, best_price_dt = find_best_ser(cur, days_count)
+        if best_price_dt == current_dt:
+            news_txt = "Согласно данным ЦБ - сегодня (%s) нас ожидает высокий курс валюты. А именно %s." \
+                       "Не пропустите момент, так как это лучший курс за последние %s дней." \
+                       "%s"% (str(current_dt), cur, str(days_count), str(answr))
+            await send_news(bot, "Выгодный курс валюты", news_txt)
+            return
+
+
+def get_news_chls():
+    chls = env.get("news_channels", None)
+    if chls is None:
+        return None
+    if "," in chls:
+        chls = chls.split(",")
+    else:
+        chls = [chls.strip()]
+    return chls
+
+
+async def send_news(bot, news_theme, news_text):
+    import news_module
+    chls = get_news_chls()
+    for id in chls:
+        chl = bot.get_channel(id)
+        await news_module.news_form(chl, bot, news_theme, news_text, img="")
+
+
+def find_best_ser(cur, days):
+    """
+    get best extended rates on last days
+    :param cur: string - currency code (USD,GBP,...)
+    :param days: days interval for review
+    :return: string response and str date of best day price ('%Y-%m-%d')
+    """
+    url = env.get("ser_url", None)
+    res = requests.get("%s/GetBestOf?cur=%s&days=%s" % (url, cur, str(days)))
+    tmp_dt = res.text.split("(")[1].split(")")[0]
+    best_price_dt = datetime.strptime(tmp_dt, '%d.%m.%Y').strftime('%Y-%m-%d')
+    return res.text, best_price_dt
+
+
+def get_current_ser(cur):
+    """
+    get extended rates
+    :param cur: string - currency code (USD,GBP,...)
+    :return: string response
+    """
+    url = env.get("ser_url", None)
+    res = requests.get("%s/GetCurrent?cur=%s" % (url, cur))
+    return res.text
 
 
 def get_game_info(game):
