@@ -135,7 +135,7 @@ async def check_today_price(bot, current_dt):
 
 
 def get_news_chls():
-    chls = read_news_channels()
+    chls = Channels.news.read()
     if chls == {}:
         return None
 
@@ -217,22 +217,28 @@ def get_game_info(game):
 
 
 def subscribe_channel(server, id):
-    dct = read_news_channels()
+    dct = Channels.news.read()
     dct[server] = id
-    save_news_channels(dct)
+    Channels.news.save(dct)
 
 
-def read_news_channels():
-    if not os.path.exists("news_channels.yaml"):
-        return {}
+class Channel:
+    def __init__(self, file_name: str):
+        self.__file_name = file_name
 
-    with open("news_channels.yaml", "r") as f:
-        res = f.read()
-        j_res = yaml.load(res)
-        return j_res
+    def read(self) -> dict:
+        try:
+            with open(self.__file_name, 'r') as f:
+                return yaml.load(f.read())
+        except FileNotFoundError:
+            return {}
+
+    def save(self, chls: dict):
+        with open(self.__file_name, "w") as f:
+            yaml.dump(chls, f)
+            return chls
 
 
-def save_news_channels(chls):
-    with open("news_channels.yaml", "w") as f:
-        f.write(str(chls))
-        return chls
+class Channels:
+    work = Channel('work_channels.yaml')
+    news = Channel("news_channels.yaml")
