@@ -67,14 +67,31 @@ class Calendar:
         :param at: specific timestamp or now if None
         """
         if at is None:
-            at = datetime.now()
-
+            at = datetime.now() - timedelta(days=1)
         ans = []
         while True:
             info = cls.day(at)
             if not info.type.is_working:
                 ans.append(info)
                 at = at - timedelta(days=1)
+            else:
+                break
+        return ans
+
+    @classmethod
+    def left_working_days(cls, at: datetime = None) -> List[Info]:
+        """
+        Get all working days (including current) till next non-working days
+        :param at: specific timestamp or now if None
+        """
+        if at is None:
+            at = datetime.now()
+        ans = []
+        while True:
+            info = cls.day(at)
+            if info.type.is_working:
+                ans.append(info)
+                at = at + timedelta(days=1)
             else:
                 break
         return ans
@@ -92,8 +109,10 @@ class Calendar:
                     stamp=at,
                     holiday=calendar.holidays.get(day.holiday_id),
                 )
-        weekend = 1 <= at.weekday() <= 5
+        weekend = 5 <= at.weekday() <= 6
         day_type = DayType.WEEKEND if weekend else DayType.WORKDAY
+        if at.weekday() == 4:
+            day_type = DayType.SHORT
         return Info(
             type=day_type,
             stamp=at,

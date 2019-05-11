@@ -23,6 +23,7 @@ from bot_tools import env as env
 
 # import modules to load them to knowledge
 import general
+import chrono
 
 # env = {}
 #
