@@ -124,7 +124,7 @@ def hi_answer():
 
 async def check_today_price(bot, current_dt):
     cur = env.get("currency_check", "GBP")
-    for days_count in [7, 14]:
+    for days_count in [14, 7]:
         answr, best_price_dt = find_best_ser(cur, days_count)
         if best_price_dt == current_dt:
             news_txt = "Согласно данным ЦБ - сегодня (%s) нас ожидает высокий курс валюты. А именно %s." \
