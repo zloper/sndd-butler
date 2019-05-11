@@ -1,0 +1,5 @@
+venv
+.git
+req.sh
+.dockerignore
+Dockerfile

@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-apt-get install libopus0
-apt-get install ffmpeg
+apt-get install -y libopus0
+apt-get install -y ffmpeg
