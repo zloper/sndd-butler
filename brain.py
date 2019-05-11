@@ -18,7 +18,7 @@ import json
 import bot_tools as bt
 import lib
 import wow
-from root import root
+from root import root, scheduler
 from bot_tools import env as env
 
 # import modules to load them to knowledge
@@ -66,8 +66,20 @@ async def on_ready():
     saved_dt = datetime.now().strftime('%Y-%m-%d')
     while True:
         # ================= New hour block
-        tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        current_dt = datetime.now().strftime('%Y-%m-%d')
+        now = datetime.now()
+        tm = now.strftime('%Y-%m-%d %H:%M:%S')
+        current_dt = now.strftime('%Y-%m-%d')
+
+        # TODO: think how to reorganize ^^
+        message = None
+        if now.hour == 9:
+            message = await scheduler('morning')
+        elif now.hour == 17:
+            message = await scheduler('evening')
+
+        if message is not None:
+            await bt.send_work_text(bot, message)
+
         print("start bg tasks", tm)
         print('- Is new day started? -', current_dt != saved_dt)
         if current_dt != saved_dt:
@@ -79,7 +91,6 @@ async def on_ready():
                 print("Upd info:", res.text)
 
                 await bt.check_today_price(bot, current_dt)
-
         await asyncio.sleep(60 * 60)  # 1 hour
         # await bt.send_news(bot, "ТЕСТОВАЯ НОВОСТЬ", "проверка рассылки")
         # await asyncio.sleep(10)
@@ -134,8 +145,25 @@ async def on_message(message, answered=False):
                                    'Увы не могу добавить канал %s!\nПопробуйте написать в канал на сервере.' % str(
                                        message.channel))
         else:
-            bt.subscribe_channel(message.server, message.channel.id)
-            await bot.send_message(message.channel, 'Сделано!\n -- Теперь новости для этого сервера будут приходить в канал %s' % str(message.channel))
+            bt.subscribe_channel(message.server.id, message.channel.id)
+            await bot.send_message(message.channel,
+                                   'Сделано!\n -- Теперь новости для этого сервера будут приходить в канал %s' % str(
+                                       message.channel))
+        answered = True
+
+    if check(message, ' добавь канал в рабочую рассылку'):
+        """info
+             Могу использовать текстовый канал для рассылки новостей: <сая добавь канал в рассылку>
+          info"""
+        if message.server == None:
+            await bot.send_message(message.channel,
+                                   'Увы не могу добавить канал %s!\nПопробуйте написать в канал на сервере.' % str(
+                                       message.channel))
+        else:
+            bt.subscribe_work_channel(message.server.id, message.channel.id)
+            await bot.send_message(message.channel,
+                                   'Сделано!\n -- Теперь новости для этого сервера будут приходить в канал %s' % str(
+                                       message.channel))
         answered = True
 
     if message.content.lower().startswith("!_!"):

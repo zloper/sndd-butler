@@ -4,7 +4,7 @@ time related knowledge
 import random
 
 from holidays import Calendar, DayType
-from root import root
+from root import root, scheduler
 
 __stay_alive = [
     'выдержить',
@@ -14,7 +14,7 @@ __stay_alive = [
 
 
 @root.regexp(r'добр(ого|ое|ый)[ ]+(дня|день|времени|утро|утра|утречка)')
-def brief(message: str):
+async def brief(message: str):
     text = 'Доброго дня!'
     today = Calendar.today()
     left = Calendar.left_working_days()
@@ -48,3 +48,10 @@ def brief(message: str):
     if not today.type.is_working and len(prev) > 0 and not tomorrow.type.is_working:
         text += '\n\nЯ тут подумала: а что вы тут вообще делаете посреди выходных? o_0'
     return text
+
+
+@scheduler.simple('morning')
+async def auto_brief(message: str):
+    today = Calendar.today()
+    if today.type.is_working:
+        return brief(message)
