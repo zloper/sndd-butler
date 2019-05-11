@@ -128,8 +128,13 @@ async def on_message(message, answered=False):
         """info
              Могу использовать текстовый канал для рассылки новостей: <сая добавь канал в рассылку>
           info"""
-        bt.subscribe_channel(message.server, message.channel.id)
-        await bot.send_message(message.channel, 'Сделано!\n -- Теперь новости для этого сервера будут приходить в канал %s' % str(message.channel))
+        if message.server == None:
+            await bot.send_message(message.channel,
+                                   'Увы не могу добавить канал %s!\nПопробуйте написать в канал на сервере.' % str(
+                                       message.channel))
+        else:
+            bt.subscribe_channel(message.server, message.channel.id)
+            await bot.send_message(message.channel, 'Сделано!\n -- Теперь новости для этого сервера будут приходить в канал %s' % str(message.channel))
         answered = True
 
     if message.content.lower().startswith("!_!"):
