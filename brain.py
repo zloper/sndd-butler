@@ -80,6 +80,8 @@ async def on_ready():
                 await bt.check_today_price(bot, current_dt)
 
         await asyncio.sleep(60 * 60)  # 1 hour
+        # await bt.send_news(bot, "ТЕСТОВАЯ НОВОСТЬ", "проверка рассылки")
+        # await asyncio.sleep(10)
 
 
 def upd_voites(id, new_count):
@@ -113,9 +115,21 @@ async def on_message(message, answered=False):
 
     if check(message, ' нужна инфа по каналу'):
         await bot.send_message(message.channel,
-                               'Да шеф! Гляну последние новости ЦБ:\n channel name:%s\n channel id:%s' % (
+                               'Так точно! Гляну последние новости ЦБ:\n channel name:%s\n channel id:%s' % (
                                    str(message.channel),
                                    str(message.channel.id)))
+        answered = True
+
+    if check(message, ' потестим'):
+        await bt.check_today_price(bot, "2019-05-07")
+        answered = True
+
+    if check(message, ' добавь канал в рассылку'):
+        """info
+             Могу использовать текстовый канал для рассылки новостей: <сая добавь канал в рассылку>
+          info"""
+        bt.subscribe_channel(message.server, message.channel.id)
+        await bot.send_message(message.channel, 'Сделано!\n -- Теперь новости для этого сервера будут приходить в канал %s' % str(message.channel))
         answered = True
 
     if message.content.lower().startswith("!_!"):

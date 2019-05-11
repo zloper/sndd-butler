@@ -6,11 +6,13 @@ import requests
 import lib
 import random
 import json
+import yaml
 
 env = {}
 with open("conf.json", "r") as conf_f:
     dct = json.load(conf_f)
 env.update(dct)
+
 
 def get_url(str):
     str = str.strip()
@@ -121,35 +123,38 @@ def hi_answer():
 
 
 async def check_today_price(bot, current_dt):
-    
     cur = env.get("currency_check", "GBP")
     for days_count in [7, 14]:
         answr, best_price_dt = find_best_ser(cur, days_count)
         if best_price_dt == current_dt:
             news_txt = "Согласно данным ЦБ - сегодня (%s) нас ожидает высокий курс валюты. А именно %s." \
                        "Не пропустите момент, так как это лучший курс за последние %s дней." \
-                       "%s"% (str(current_dt), cur, str(days_count), str(answr))
+                       "%s" % (str(current_dt), cur, str(days_count), str(answr))
             await send_news(bot, "Выгодный курс валюты", news_txt)
             return
 
 
 def get_news_chls():
-    chls = env.get("news_channels", None)
-    if chls is None:
+    chls = read_news_channels()
+    if chls == {}:
         return None
-    if "," in chls:
-        chls = chls.split(",")
-    else:
-        chls = [chls.strip()]
-    return chls
+
+    res = []
+    for k in chls:
+        res.append(chls[k])
+    return res
 
 
-async def send_news(bot, news_theme, news_text):
+async def send_news(bot, news_theme, news_text, img="https://b.radikal.ru/b38/1905/96/4ace2aef7ced.gif"):
     import news_module
     chls = get_news_chls()
+    if chls is None:
+        print("News not send. News channels not find.")
+        return
+
     for id in chls:
         chl = bot.get_channel(id)
-        await news_module.news_form(chl, bot, news_theme, news_text, img="https://b.radikal.ru/b38/1905/96/4ace2aef7ced.gif")
+        await news_module.news_form(chl, bot, news_theme, news_text, img=img)
 
 
 def find_best_ser(cur, days):
@@ -209,3 +214,25 @@ def get_game_info(game):
         """
         return msg
     return None
+
+
+def subscribe_channel(server, id):
+    dct = read_news_channels()
+    dct[server] = id
+    save_news_channels(dct)
+
+
+def read_news_channels():
+    if not os.path.exists("news_channels.yaml"):
+        return {}
+
+    with open("news_channels.yaml", "r") as f:
+        res = f.read()
+        j_res = yaml.load(res)
+        return j_res
+
+
+def save_news_channels(chls):
+    with open("news_channels.yaml", "w") as f:
+        f.write(str(chls))
+        return chls
