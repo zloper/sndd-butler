@@ -28,7 +28,7 @@ class Knowledge:
         self.__default = None  # type: Optional[Handler]
         self.__triggers = tuple(x.lower() for x in triggers)
 
-    async def __call__(self, message_text: str) -> Optional[Union[str, bytes]]:
+    async def __call__(self, message_text: str, **params) -> Optional[Union[str, bytes]]:
         """
         Check that message contains trigger word in beginning (case-insensitive) and tries to check all handlers one-by-one.
         If handler's pattern matched and callback returns not None, result is returned as is.
@@ -52,7 +52,7 @@ class Knowledge:
             if match:
                 reply = None
                 try:
-                    reply = await handler(message_text, **match.groupdict())
+                    reply = await handler(message_text, **match.groupdict(), **params)
                 except KeyboardInterrupt:
                     # it's a program termination
                     return None
@@ -61,7 +61,7 @@ class Knowledge:
                 if reply is not None:
                     return reply
         if self.__default is not None:
-            return await self.__default(message_text)
+            return await self.__default(message_text, **params)
 
     def simple(self, keyword: str, handler: Handler = None):
         """

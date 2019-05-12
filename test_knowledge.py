@@ -33,6 +33,11 @@ class TestKnowledge(TestCase):
         async def unknown(message: str):
             return "WTF?"
 
+        @brain.simple('pass element')
+        async def params(message: str, custom_value=None):
+            assert custom_value is not None
+            return message
+
         async def main():
             assert await brain('bob what time is it now?') == 'no time - no problem', 'simple match'
             assert await brain('alice I am Brayan!') == 'Hello, Brayan!', 'regexp named match'
@@ -43,6 +48,7 @@ class TestKnowledge(TestCase):
             assert await brain('alice multi') == 'ok', 'multi triggers over first simple'
             assert await brain('alice another') == 'ok', 'multi triggers over second simple'
             assert await brain('alice super nano multi') == 'ok', 'multi triggers over regexp'
+            assert await brain('alice pass element', custom_value=123) == 'pass element', 'pass element'
 
         asyncio.get_event_loop().run_until_complete(main())
 

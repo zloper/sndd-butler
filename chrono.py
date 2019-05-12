@@ -14,7 +14,7 @@ __stay_alive = [
 
 
 @root.regexp(r'добр(ого|ое|ый)[ ]+(дня|день|времени|утро|утра|утречка)')
-async def brief(message: str):
+async def brief(message: str, **kwargs):
     text = 'Доброго дня!'
     today = Calendar.today()
     left = Calendar.left_working_days()
@@ -51,7 +51,7 @@ async def brief(message: str):
 
 
 @scheduler.simple('morning')
-async def auto_brief(message: str):
+async def auto_brief(message: str, **kwargs):
     today = Calendar.today()
     if today.type.is_working:
         return brief(message)

@@ -5,7 +5,7 @@ import bot_tools as bt
 
 
 @root.regexp("(joke|(рас)?скаж(и|те) шутк[ауи])")
-async def jokes(message: str):
+async def jokes(message: str, **kwargs):
     """
     Get a random joke
     """
@@ -17,7 +17,7 @@ async def jokes(message: str):
 
 
 @root.regexp("(help|что ты (можешь|умеешь))")
-async def help(message: str):
+async def help(message: str, **kwargs):
     """
     Print help
     """
@@ -29,7 +29,7 @@ async def help(message: str):
 
 
 @root.regexp("(hello|привет|хаюшки|хай!|здравствуй|прив(ет|ки|етик))")
-async def hello(message: str):
+async def hello(message: str, **kwargs):
     """
     Say hello
     """
@@ -37,7 +37,7 @@ async def hello(message: str):
 
 
 @root.regexp("(ты кто|что ты такое)")
-async def who(message: str):
+async def who(message: str, **kwargs):
     """
     Say who am i
     """
@@ -46,14 +46,15 @@ async def who(message: str):
 
 
 @root.regexp("(бака)")
-async def baka(message: str):
+async def baka(message: str, **kwargs):
     """
     Say baka
     """
     return 'Я бака!? Тебя давно в мокушку не кусали?! >_<'
 
+
 @root.regexp("(ты)")
-async def you(message: str):
+async def you(message: str, **kwargs):
     """
     Say abot you
     """

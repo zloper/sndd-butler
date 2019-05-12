@@ -502,7 +502,7 @@ async def on_message(message, answered=False):
             await bot.send_message(message.channel, ans)
             answered = True
 
-    reply = await root(message.content)
+    reply = await root(message.content, raw_message=message)
     if reply is not None:
         if isinstance(reply, str):
             await bot.send_message(message.channel, reply)
