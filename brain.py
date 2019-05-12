@@ -1,4 +1,3 @@
-import os
 import re
 from datetime import datetime, time
 from io import BytesIO
@@ -14,7 +13,6 @@ import mus_module
 import q_module
 import discord
 import sys
-import json
 import bot_tools as bt
 import lib
 import wow
@@ -24,12 +22,6 @@ from bot_tools import env as env
 # import modules to load them to knowledge
 import general
 import chrono
-
-# env = {}
-#
-# with open("conf.json", "r") as conf_f:
-#     dct = json.load(conf_f)
-# env.update(dct)
 
 bot = discord.Client()
 DISCORD_BOT_TOKEN = env.get("token", "")
@@ -381,10 +373,6 @@ async def on_message(message, answered=False):
             await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
         answered = True
 
-    # if message.content.startswith(code + ' добавь в очередь '):
-    #     # TODO queue
-    #     await bot.send_message(message.channel, bt.you_answer())
-    #     answered = True
 
     if check(message, ' установи громкость '):
         """info

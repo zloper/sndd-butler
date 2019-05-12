@@ -4,7 +4,7 @@ from datetime import *
 from root import root
 from pyquery import PyQuery as pq
 import bot_tools as bt
-
+import git
 
 @root.regexp("(joke|(рас)?скаж(и|те) шутк[ауи])")
 async def jokes(message: str, **kwargs):
@@ -96,3 +96,15 @@ async def you(message: str, **kwargs):
     Say another local meme
     """
     return 'Сам кыкай %s бака!' % str(kwargs['raw_message'].author).split("#")[0]
+
+@root.regexp("(какой ты версии?)|(version)")
+async def you(message: str, **kwargs):
+    """
+    Say say git version
+    """
+    gt = git.Git("")
+    loginfo = gt.log()
+    latest = loginfo.split("commit")[1]
+    dt = latest.split("Date:")[1].split("\n")[0].strip().split(" ")
+    vers = "0.1." + dt[-2][2:] + dt[1] + dt[2] + dt[3].replace(":", "") + dt[-1]
+    return 'Текущая версия: %s' % vers

@@ -5,4 +5,5 @@ requests
 pyquery
 youtube_dl
 opuslib
+GitPython
 #required discord.py==0.16.12
