@@ -6,6 +6,7 @@ from pyquery import PyQuery as pq
 import bot_tools as bt
 import git
 
+
 @root.regexp("(joke|(рас)?скаж(и|те) шутк[ауи])")
 async def jokes(message: str, **kwargs):
     """
@@ -97,6 +98,18 @@ async def you(message: str, **kwargs):
     """
     return 'Сам кыкай %s бака!' % str(kwargs['raw_message'].author).split("#")[0]
 
+
+@root.regexp("(курс валюты)")
+async def you(message: str, **kwargs):
+    """
+    Say extended rate
+    """
+    message = kwargs['raw_message']
+    cur = str(message.content).split('валюты')[1].strip()
+    response = bt.get_current_ser(cur)
+    return "Да шеф!\n %s" % response
+
+
 @root.regexp("(какой ты версии?)|(version)")
 async def you(message: str, **kwargs):
     """
@@ -108,3 +121,38 @@ async def you(message: str, **kwargs):
     dt = latest.split("Date:")[1].split("\n")[0].strip().split(" ")
     vers = "0.1." + dt[-2][2:] + dt[1] + dt[2] + dt[3].replace(":", "") + dt[-1]
     return 'Текущая версия: %s' % vers
+
+
+@root.regexp("(нужна инфа по каналу)")
+async def you(message: str, **kwargs):
+    """
+    Say channel info
+    """
+    message = kwargs['raw_message']
+    return 'Так точно! Сейчас все доложу!\n channel name:%s\n channel id:%s' % (
+        str(message.channel), str(message.channel.id))
+
+
+@root.regexp("(добавь канал в рассылку)")
+async def you(message: str, **kwargs):
+    """
+    Subscribe channel on Saya-news
+    """
+    message = kwargs['raw_message']
+    if message.server == None:
+        return 'Увы не могу добавить канал %s!\nПопробуйте написать в канал на сервере.' % str(message.channel)
+    else:
+        bt.subscribe_channel(message.server.id, message.channel.id)
+        return 'Сделано!\n -- Теперь новости для этого сервера будут приходить в канал %s' % str(message.channel)
+
+@root.regexp("(добавь канал в рабочую рассылку)")
+async def you(message: str, **kwargs):
+    """
+    Subscribe channel on work Saya-news
+    """
+    message = kwargs['raw_message']
+    if message.server == None:
+        return 'Увы не могу добавить канал %s!\nПопробуйте написать в канал на сервере.' % str(message.channel)
+    else:
+        bt.subscribe_work_channel(message.server.id, message.channel.id)
+        return 'Сделано!\n -- Теперь рабочие новости для этого сервера будут приходить в канал %s' % str(message.channel)

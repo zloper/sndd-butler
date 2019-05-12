@@ -106,51 +106,8 @@ def refresh_description(server=None):
 async def on_message(message, answered=False):
     player = bt.get_player(message.server)
 
-    if check(message, ' курс валюты'):
-        cur = str(message.content).split('валюты')[1].strip()
-        res = bt.get_current_ser(cur)
-        await bot.send_message(message.channel, 'Да шеф!\n %s' % res)
-        answered = True
-
-    if check(message, ' нужна инфа по каналу'):
-        await bot.send_message(message.channel,
-                               'Так точно! Гляну последние новости ЦБ:\n channel name:%s\n channel id:%s' % (
-                                   str(message.channel),
-                                   str(message.channel.id)))
-        answered = True
-
     if check(message, ' потестим'):
         await bt.check_today_price(bot, "2019-05-07")
-        answered = True
-
-    if check(message, ' добавь канал в рассылку'):
-        """info
-             Могу использовать текстовый канал для рассылки новостей: <сая добавь канал в рассылку>
-          info"""
-        if message.server == None:
-            await bot.send_message(message.channel,
-                                   'Увы не могу добавить канал %s!\nПопробуйте написать в канал на сервере.' % str(
-                                       message.channel))
-        else:
-            bt.subscribe_channel(message.server.id, message.channel.id)
-            await bot.send_message(message.channel,
-                                   'Сделано!\n -- Теперь новости для этого сервера будут приходить в канал %s' % str(
-                                       message.channel))
-        answered = True
-
-    if check(message, ' добавь канал в рабочую рассылку'):
-        """info
-             Могу использовать текстовый канал для рассылки новостей: <сая добавь канал в рассылку>
-          info"""
-        if message.server == None:
-            await bot.send_message(message.channel,
-                                   'Увы не могу добавить канал %s!\nПопробуйте написать в канал на сервере.' % str(
-                                       message.channel))
-        else:
-            bt.subscribe_work_channel(message.server.id, message.channel.id)
-            await bot.send_message(message.channel,
-                                   'Сделано!\n -- Теперь новости для этого сервера будут приходить в канал %s' % str(
-                                       message.channel))
         answered = True
 
     if message.content.lower().startswith("!_!"):
@@ -166,15 +123,6 @@ async def on_message(message, answered=False):
         refresh_description()
         await bot.edit_message(helper.last_q, embed=helper.embed)
         answered = True
-
-    if check(message, '!'):
-        """info
-          Могу выдать аниме coub: <сая! давай аниме> и если приглянулась мелодия могу дать ссылку на трек <сая! скинь трек>
-       info"""
-        answr = mus_module.finder(message)
-        if answr is not None:
-            await bot.send_message(message.channel, answr)
-            answered = True
 
     if check(message, ' замути опрос'):
         """info
@@ -204,6 +152,15 @@ async def on_message(message, answered=False):
 
         await q_module.crt_web_form(message, bot, question, variants, destanation=server, img=img)
         answered = True
+
+    if check(message, '!'):
+        """info
+          Могу выдать аниме coub: <сая! давай аниме> и если приглянулась мелодия могу дать ссылку на трек <сая! скинь трек>
+       info"""
+        answr = mus_module.finder(message)
+        if answr is not None:
+            await bot.send_message(message.channel, answr)
+            answered = True
 
     if check(message, ' сбрось опрос'):
         """info
@@ -465,7 +422,7 @@ async def on_message(message, answered=False):
             await bot.send_message(message.channel, ans)
             answered = True
 
-    reply = await root(message.content, raw_message=message)
+    reply = await root(message.content, raw_message=message, bot=bot)
     if reply is not None:
         if isinstance(reply, str):
             await bot.send_message(message.channel, reply)

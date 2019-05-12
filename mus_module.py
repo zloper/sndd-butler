@@ -6,6 +6,9 @@ import requests
 def finder(message):
     msg = message.content.lower().split("сая!")[1].strip()
 
+    # if msg.startswith("давай edm"):
+    #     get_coub()
+
     if msg.startswith("давай аниме"):
         url = "https://coub.com/api/v2/timeline/random/anime?page=1"
         r = requests.get(url)
@@ -33,6 +36,26 @@ def finder(message):
 
         res = get_track(id)
         return res
+
+
+def get_coub(url,msg):
+    r = requests.get(url)
+    txt = r.text
+
+    dct = json.loads(txt)['coubs'][0]
+    res = 'https://coub.com/view/%s' % dct['permalink']
+
+    # print(dct)
+    # print(dct['file_versions'])
+    # print(dct['file_versions']['html5'])
+
+    id = str(msg.server)
+    if id == "None":
+        id = msg.author
+
+    audio = dct['file_versions']['html5']['audio']
+    set_track(audio['high']['url'], id)
+    return res
 
 
 def set_track(txt, server):
