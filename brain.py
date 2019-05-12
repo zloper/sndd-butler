@@ -92,8 +92,6 @@ async def on_ready():
 
                 await bt.check_today_price(bot, current_dt)
         await asyncio.sleep(60 * 60)  # 1 hour
-        # await bt.send_news(bot, "ТЕСТОВАЯ НОВОСТЬ", "проверка рассылки")
-        # await asyncio.sleep(10)
 
 
 def upd_voites(id, new_count):
@@ -115,9 +113,6 @@ def refresh_description(server=None):
 @bot.event
 async def on_message(message, answered=False):
     player = bt.get_player(message.server)
-
-    # if message.content.lower().startswith(code + "!"):
-    #     finder(message)
 
     if check(message, ' курс валюты'):
         cur = str(message.content).split('валюты')[1].strip()
@@ -180,21 +175,6 @@ async def on_message(message, answered=False):
         await bot.edit_message(helper.last_q, embed=helper.embed)
         answered = True
 
-        # if "Direct Message" not in message.channel:
-        #     q_module.upd_question(answer, message)
-        #     refresh_description()
-        #     await bot.edit_message(helper.last_q, embed=helper.embed)
-        #     answered = True
-        # else:
-        #     serv_arg = re.findall(r'\[\[.*\]\]', message.content)
-        #     if len(serv_arg) > 0:
-        #         serv_arg = str(serv_arg[0])
-        #         server = serv_arg[2:-2]
-        #
-        #         refresh_description(server)
-        #         await bot.edit_message(helper.last_q, embed=helper.embed)
-        #         answered = True
-
     if check(message, '!'):
         """info
           Могу выдать аниме coub: <сая! давай аниме> и если приглянулась мелодия могу дать ссылку на трек <сая! скинь трек>
@@ -240,19 +220,22 @@ async def on_message(message, answered=False):
         q_module.reset()
         answered = True
 
+    if check(message, ' !новость!'):
+        block = str(message.content).split("!новость!")[1]
+        theme = block.split("[[")[1].split("]]")[0]
+        text = block.split("((")[1].split("))")[0]
+        is_img = "@!@" in block and "@!@" in block
+        if is_img:
+            img = block.split("@!@")[1].split("@!@")[0]
+            await bt.send_news(bot, theme, text, img)
+        else:
+            print("it")
+            await bt.send_news(bot, theme, text)
+        answered = True
+
     if message.content.lower().startswith('все понятно?'):
         print('[command]: все понятно')
         await bot.send_message(message.channel, 'Всё понятно!')
-        answered = True
-
-    if check(message, ' который час?'):
-        """info
-            Могу подсказать время, команда: <который час?>
-         info"""
-        print('[command]: время')
-        tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        name = str(message.author).split("#")[0]
-        await bot.send_message(message.channel, '%s господин %s!' % (tm, name))
         answered = True
 
     if check(message, ' прыгни в канал'):
@@ -293,14 +276,6 @@ async def on_message(message, answered=False):
             await bot.send_message(message.channel, '%s' % answer)
         else:
             await bot.send_message(message.channel, 'не знаю такой игры =\\')
-        answered = True
-
-    if 'кто в комнате?' in message.content:
-        await bot.send_message(message.channel, 'Тут темно страшно и какой-то паладин лезет обниматься!')
-        answered = True
-
-    if check(message, ' кыкай каст'):
-        await bot.send_message(message.channel, 'Сам кыкай %s бака!' % str(message.author).split("#")[0])
         answered = True
 
     # ---------------------------------------- Плеер -----------------------------------------------------
@@ -528,32 +503,6 @@ async def on_message(message, answered=False):
 
     if message.content.startswith(code + 'exit233'):
         sys.exit()
-
-        # if message.content.startswith(bot + ' спой'):
-        # vc.create_ytdl_player(url)
-
-        # bot.add_comand(yt)
-
-        # url = "https://youtu.be/YLb3Cpiqe-o"
-        # author = message.author
-        # voice_channel = author.voice_channel
-        # vc = await client.join_voice_channel(voice_channel)
-        #
-        # player = await vc.create_ytdl_player(url)
-        # player.volume = 0.1
-        # player.start()
-
-        # if message.content.startswith(bot + ' спой'):
-        #     # url = str(message.content).split('канал')[1].strip()
-        #     # bot.add_comand(yt)
-        #     url = "https://youtu.be/YLb3Cpiqe-o"
-        #     author = message.author
-        #     voice_channel = author.voice_channel
-        #     vc = await client.join_voice_channel(voice_channel)
-        #
-        #     player = await vc.create_ytdl_player(url)
-        #     player.volume(0.2)
-        #     player.stop()
 
     if check(message, " ") and not answered:
         await bot.send_message(message.channel, bt.random_answer())

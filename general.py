@@ -1,4 +1,6 @@
 import aiohttp
+from datetime import *
+
 from root import root
 from pyquery import PyQuery as pq
 import bot_tools as bt
@@ -53,9 +55,44 @@ async def baka(message: str, **kwargs):
     return 'Я бака!? Тебя давно в мокушку не кусали?! >_<'
 
 
+@root.regexp("(который час?)|(подскажи время)")
+async def baka(message: str, **kwargs):
+    """
+    Say time
+    """
+    msg = kwargs['raw_message']
+    tm = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    name = str(msg.author).split("#")[0]
+    return '%s господин %s!' % (tm, name)
+
+
 @root.regexp("(ты)")
 async def you(message: str, **kwargs):
     """
-    Say abot you
+    Say about you
     """
     return bt.you_answer()
+
+
+@root.regexp("(кто в комнате?)")
+async def you(message: str, **kwargs):
+    """
+    Say local meme
+    """
+    return 'Тут темно страшно и какой-то паладин лезет обниматься!'
+
+
+@root.regexp("(кто в комнате?)")
+async def you(message: str, **kwargs):
+    """
+    Say local meme
+    """
+    return 'Тут темно страшно и какой-то паладин лезет обниматься!'
+
+
+@root.regexp("(кыкай каст)")
+async def you(message: str, **kwargs):
+    """
+    Say another local meme
+    """
+    return 'Сам кыкай %s бака!' % str(kwargs['raw_message'].author).split("#")[0]
