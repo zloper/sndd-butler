@@ -148,6 +148,9 @@ def get_news_chls():
 def get_work_chls():
     return list(Channels.work.read().values())
 
+def get_work_test_chls():
+    return list(Channels.test.read().values())
+
 
 async def send_news(bot, news_theme, news_text, img="https://b.radikal.ru/b38/1905/96/4ace2aef7ced.gif"):
     import news_module
@@ -165,7 +168,13 @@ async def send_work_text(bot, text: str):
     chls = get_work_chls()
     for id in chls:
         channel = bot.get_channel(id)
-        await bot.send_message(channel, content=text)
+        await bot.send_message(channel, text)
+
+async def send_work_test_text(bot, text: str):
+    chls = get_work_test_chls()
+    for id in chls:
+        channel = bot.get_channel(id)
+        await bot.send_message(channel, text)
 
 
 def find_best_ser(cur, days):
@@ -238,6 +247,11 @@ def subscribe_work_channel(server, id):
     dct[server] = id
     Channels.work.save(dct)
 
+def subscribe_work_test_channel(server, id):
+    dct = Channels.test.read()
+    dct[server] = id
+    Channels.test.save(dct)
+
 
 class Channel:
     def __init__(self, file_name: str):
@@ -259,3 +273,4 @@ class Channel:
 class Channels:
     work = Channel('work_channels.yaml')
     news = Channel("news_channels.yaml")
+    test = Channel("test_channels.yaml")

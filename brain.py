@@ -61,28 +61,28 @@ async def on_ready():
         now = datetime.now()
         tm = now.strftime('%Y-%m-%d %H:%M:%S')
         current_dt = now.strftime('%Y-%m-%d')
+        print("start bg tasks", tm)
 
         # TODO: think how to reorganize ^^
-        message = None
+        msg = None
         if now.hour == 9:
-            message = await scheduler('morning')
+            msg = await scheduler('morning')
         elif now.hour == 17:
-            message = await scheduler('evening')
+            msg = await scheduler('evening')
 
-        if message is not None:
-            await bt.send_work_text(bot, message)
+        if msg is not None:
+            await bt.send_work_text(bot, msg)
 
-        print("start bg tasks", tm)
+        if env.get("ser_url", None) is not None:
+            url = env.get("ser_url", None)
+            res = requests.get("%s/GetLastMonth" % url)  # upd information from cbr
+            print("Upd info:", res.text)
+
         print('- Is new day started? -', current_dt != saved_dt)
         if current_dt != saved_dt:
-            saved_dt = current_dt
             # ================= New day block
-            if env.get("ser_url", None) is not None:
-                url = env.get("ser_url", None)
-                res = requests.get("%s/GetLastMonth" % url)  # upd information from cbr
-                print("Upd info:", res.text)
-
-                await bt.check_today_price(bot, current_dt)
+            saved_dt = current_dt
+            await bt.check_today_price(bot, current_dt)
         await asyncio.sleep(60 * 60)  # 1 hour
 
 
@@ -106,8 +106,10 @@ def refresh_description(server=None):
 async def on_message(message, answered=False):
     player = bt.get_player(message.server)
 
-    if check(message, ' потестим'):
-        await bt.check_today_price(bot, "2019-05-07")
+    if check(message, ' давай давай лечиться!'):
+        # await bt.check_today_price(bot, "2019-05-07")
+        msg = await scheduler('evening')
+        await bt.send_work_test_text(bot, msg)
         answered = True
 
     if message.content.lower().startswith("!_!"):

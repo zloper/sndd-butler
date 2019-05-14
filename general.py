@@ -57,7 +57,7 @@ async def baka(message: str, **kwargs):
 
 
 @root.regexp("(который час?)|(подскажи время)")
-async def baka(message: str, **kwargs):
+async def time(message: str, **kwargs):
     """
     Say time
     """
@@ -76,23 +76,17 @@ async def you(message: str, **kwargs):
 
 
 @root.regexp("(кто в комнате?)")
-async def you(message: str, **kwargs):
+async def who(message: str, **kwargs):
     """
     Say local meme
     """
     return 'Тут темно страшно и какой-то паладин лезет обниматься!'
 
 
-@root.regexp("(кто в комнате?)")
-async def you(message: str, **kwargs):
-    """
-    Say local meme
-    """
-    return 'Тут темно страшно и какой-то паладин лезет обниматься!'
 
 
 @root.regexp("(кыкай каст)")
-async def you(message: str, **kwargs):
+async def kick(message: str, **kwargs):
     """
     Say another local meme
     """
@@ -100,7 +94,7 @@ async def you(message: str, **kwargs):
 
 
 @root.regexp("(курс валюты)")
-async def you(message: str, **kwargs):
+async def er(message: str, **kwargs):
     """
     Say extended rate
     """
@@ -111,7 +105,7 @@ async def you(message: str, **kwargs):
 
 
 @root.regexp("(какой ты версии?)|(version)")
-async def you(message: str, **kwargs):
+async def vers(message: str, **kwargs):
     """
     Say say git version
     """
@@ -124,7 +118,7 @@ async def you(message: str, **kwargs):
 
 
 @root.regexp("(нужна инфа по каналу)")
-async def you(message: str, **kwargs):
+async def info(message: str, **kwargs):
     """
     Say channel info
     """
@@ -134,7 +128,7 @@ async def you(message: str, **kwargs):
 
 
 @root.regexp("(добавь канал в рассылку)")
-async def you(message: str, **kwargs):
+async def sub(message: str, **kwargs):
     """
     Subscribe channel on Saya-news
     """
@@ -146,7 +140,7 @@ async def you(message: str, **kwargs):
         return 'Сделано!\n -- Теперь новости для этого сервера будут приходить в канал %s' % str(message.channel)
 
 @root.regexp("(добавь канал в рабочую рассылку)")
-async def you(message: str, **kwargs):
+async def sub_w(message: str, **kwargs):
     """
     Subscribe channel on work Saya-news
     """
@@ -156,3 +150,15 @@ async def you(message: str, **kwargs):
     else:
         bt.subscribe_work_channel(message.server.id, message.channel.id)
         return 'Сделано!\n -- Теперь рабочие новости для этого сервера будут приходить в канал %s' % str(message.channel)
+
+@root.regexp("(добавь канал в тест рассылку)")
+async def sub_t(message: str, **kwargs):
+    """
+    Subscribe channel on test Saya-news
+    """
+    message = kwargs['raw_message']
+    if message.server == None:
+        return 'Увы не могу добавить канал %s!\nПопробуйте написать в канал на сервере.' % str(message.channel)
+    else:
+        bt.subscribe_work_test_channel(message.server.id, message.channel.id)
+        return 'Сделано!\n -- Теперь тестовые новости для этого сервера будут приходить в канал %s' % str(message.channel)

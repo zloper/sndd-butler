@@ -54,4 +54,18 @@ async def brief(message: str, **kwargs):
 async def auto_brief(message: str, **kwargs):
     today = Calendar.today()
     if today.type.is_working:
-        return brief(message)
+        result = await brief(message)
+        return result
+
+
+@scheduler.simple('evening')
+async def auto_goodbay(message: str, **kwargs):
+    today = Calendar.today()
+    if today.type.is_working:
+        result = await goodbay(message)
+        return result
+
+
+async def goodbay(message: str, **kwargs):
+    return "Доброго вечера господа!\n Рабочий день медленно но верно приближается к концу. \n" \
+           "Я только хотела напомнить вам - пожалуйста не перетруждались.\n И спасибо вам за труд."
