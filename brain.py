@@ -64,16 +64,6 @@ async def on_ready():
         current_dt = now.strftime('%Y-%m-%d')
         print("start bg tasks", tm)
 
-        # TODO: think how to reorganize ^^
-        msg = None
-        if now.hour == 9:
-            msg = await scheduler('morning')
-        elif now.hour == 17:
-            msg = await scheduler('evening')
-
-        if msg is not None:
-            await bt.send_work_text(bot, msg)
-
         if now.hour != saved_hour:
             saved_hour = now.hour
             print('- new hour: %s' % str(saved_hour), current_dt != saved_dt)
@@ -83,12 +73,21 @@ async def on_ready():
                 res = requests.get("%s/GetLastMonth" % url)  # upd information from cbr
                 print("Upd info:", res.text)
 
+            msg = None
+            if now.hour == 9:
+                msg = await scheduler('morning')
+            elif now.hour == 17:
+                msg = await scheduler('evening')
+
+            if msg is not None:
+                await bt.send_work_text(bot, msg)
+
         print('- Is new day started? -', current_dt != saved_dt)
         if current_dt != saved_dt:
             # ================= New day block
             saved_dt = current_dt
             await bt.check_today_price(bot, current_dt)
-        await asyncio.sleep(60)  # 1 minute
+        await asyncio.sleep(60*10)  # 10 minute
 
 
 def upd_voites(id, new_count):
