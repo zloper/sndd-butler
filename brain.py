@@ -88,7 +88,7 @@ async def on_ready():
             # ================= New day block
             saved_dt = current_dt
             await bt.check_today_price(bot, current_dt)
-        await asyncio.sleep(60 * 60)  # 1 hour
+        await asyncio.sleep(60)  # 1 minute
 
 
 def upd_voites(id, new_count):
