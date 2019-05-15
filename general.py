@@ -104,6 +104,18 @@ async def er(message: str, **kwargs):
     return "Да шеф!\n %s" % response
 
 
+@root.regexp("(лучший курс)")
+async def er(message: str, **kwargs):
+    """
+    Say extended rate
+    """
+    message = kwargs['raw_message']
+    cur = str(message.content).split('лучший курс')[1].split('за')[0].strip()
+    days = str(message.content).split('за')[1].split('дней')[0].strip()
+    response = bt.find_best_ser(cur, days)
+    return "Легко!\n %s" % response
+
+
 @root.regexp("(какой ты версии?)|(version)")
 async def vers(message: str, **kwargs):
     """
