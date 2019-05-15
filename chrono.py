@@ -2,6 +2,7 @@
 time related knowledge
 """
 import random
+import time
 
 from holidays import Calendar, DayType
 from root import root, scheduler
@@ -55,6 +56,7 @@ async def auto_brief(message: str, **kwargs):
     today = Calendar.today()
     if today.type.is_working:
         result = await brief(message)
+        result += '\nВсем добра!\nhttps://cataas.com/cat/cute?q=' + str(time.time())
         return result
 
 
