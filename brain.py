@@ -56,8 +56,9 @@ async def on_ready():
 
     # start bg tasks
     saved_dt = datetime.now().strftime('%Y-%m-%d')
+    saved_hour = -1
     while True:
-        # ================= New hour block
+
         now = datetime.now()
         tm = now.strftime('%Y-%m-%d %H:%M:%S')
         current_dt = now.strftime('%Y-%m-%d')
@@ -73,10 +74,14 @@ async def on_ready():
         if msg is not None:
             await bt.send_work_text(bot, msg)
 
-        if env.get("ser_url", None) is not None:
-            url = env.get("ser_url", None)
-            res = requests.get("%s/GetLastMonth" % url)  # upd information from cbr
-            print("Upd info:", res.text)
+        if now.hour != saved_hour:
+            saved_hour = now.hour
+            print('- new hour: %s' % str(saved_hour), current_dt != saved_dt)
+            # ================= New hour block
+            if env.get("ser_url", None) is not None:
+                url = env.get("ser_url", None)
+                res = requests.get("%s/GetLastMonth" % url)  # upd information from cbr
+                print("Upd info:", res.text)
 
         print('- Is new day started? -', current_dt != saved_dt)
         if current_dt != saved_dt:
@@ -331,7 +336,6 @@ async def on_message(message, answered=False):
         else:
             await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
         answered = True
-
 
     if check(message, ' установи громкость '):
         """info
