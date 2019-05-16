@@ -143,7 +143,7 @@ async def day_common_news(bot):
     if "https" in res.text:
         img = "https" + txt.split('https')[1]
         txt = txt.split('https')[0]
-    await send_news(bot, "Выгодный курс валюты", txt, img=img)
+    await send_news(bot, "История даты", txt.strip(), img=img)
     return
 
 

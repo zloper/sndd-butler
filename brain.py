@@ -118,7 +118,7 @@ async def on_message(message, answered=False):
     player = bt.get_player(message.server)
 
     if check(message, ' давай давай! лечиться!!!'):
-        await bt.check_today_info(bot)
+        await bt.day_common_news(bot)
         # msg = await scheduler('evening')
         # await bt.send_work_test_text(bot, msg)
         answered = True
