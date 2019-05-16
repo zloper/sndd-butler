@@ -58,41 +58,43 @@ async def on_ready():
     saved_dt = datetime.now().strftime('%Y-%m-%d')
     saved_hour = -1
     while True:
+        try:
+            now = datetime.now()
+            tm = now.strftime('%Y-%m-%d %H:%M:%S')
+            current_dt = now.strftime('%Y-%m-%d')
+            print("start bg tasks", tm)
 
-        now = datetime.now()
-        tm = now.strftime('%Y-%m-%d %H:%M:%S')
-        current_dt = now.strftime('%Y-%m-%d')
-        print("start bg tasks", tm)
+            if now.hour != saved_hour:
+                saved_hour = now.hour
+                print('- new hour: %s' % str(saved_hour))
+                # ================= New hour block
+                if env.get("ser_url", None) is not None:
+                    url = env.get("ser_url", None)
+                    res = requests.get("%s/GetLastMonth" % url)  # upd information from cbr
+                    print("Upd info:", res.text)
 
-        if now.hour != saved_hour:
-            saved_hour = now.hour
-            print('- new hour: %s' % str(saved_hour), current_dt != saved_dt)
-            # ================= New hour block
-            if env.get("ser_url", None) is not None:
-                url = env.get("ser_url", None)
-                res = requests.get("%s/GetLastMonth" % url)  # upd information from cbr
-                print("Upd info:", res.text)
+                msg = None
+                if now.hour == 9:
+                    msg = await scheduler('morning')
+                    await bt.day_common_news(bot)
 
-            msg = None
-            if now.hour == 9:
-                msg = await scheduler('morning')
-                await bt.day_common_news(bot)
+                elif now.hour == 17:
+                    msg = await scheduler('evening')
 
-            elif now.hour == 17:
-                msg = await scheduler('evening')
+                if msg is not None:
+                    await bt.send_work_text(bot, msg)
 
-            if msg is not None:
-                await bt.send_work_text(bot, msg)
+            print('- Is new day started? -', current_dt != saved_dt)
+            if current_dt != saved_dt:
+                # ================= New day block
+                print('- new day -')
+                saved_dt = current_dt
+                await bt.check_today_price(bot, current_dt)
+        except Exception as ex:
+            print(ex)
 
-        print('- Is new day started? -', current_dt != saved_dt)
-        if current_dt != saved_dt:
-            # ================= New day block
-
-
-            saved_dt = current_dt
-            await bt.check_today_price(bot, current_dt)
-        print('10 min')
-        await asyncio.sleep(60*10)  # 10 minute
+        print('1 min')
+        await asyncio.sleep(60)  # 10 minute
 
 
 def upd_voites(id, new_count):
