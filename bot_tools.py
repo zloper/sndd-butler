@@ -133,9 +133,11 @@ async def check_today_price(bot, current_dt):
             await send_news(bot, "Выгодный курс валюты", news_txt)
             return
 
-#TODO tmp hardcode
+
+# TODO tmp hardcode
 async def day_common_news(bot):
-    res = requests.get("http://78.155.219.118:8089/GetRandomDayInfo")
+    url = env.get("day_url", None)
+    res = requests.get("%s/GetRandomDayInfo" % url)
     txt = res.text
     img = ""
     if "https" in res.text:
@@ -143,6 +145,7 @@ async def day_common_news(bot):
         txt = txt.split('https')[0]
     await send_news(bot, "Выгодный курс валюты", txt, img=img)
     return
+
 
 def get_news_chls():
     chls = Channels.news.read()
