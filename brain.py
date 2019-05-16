@@ -76,6 +76,8 @@ async def on_ready():
             msg = None
             if now.hour == 9:
                 msg = await scheduler('morning')
+                await bt.day_common_news(bot)
+
             elif now.hour == 17:
                 msg = await scheduler('evening')
 
@@ -85,8 +87,11 @@ async def on_ready():
         print('- Is new day started? -', current_dt != saved_dt)
         if current_dt != saved_dt:
             # ================= New day block
+
+
             saved_dt = current_dt
             await bt.check_today_price(bot, current_dt)
+        print('10 min')
         await asyncio.sleep(60*10)  # 10 minute
 
 
@@ -110,10 +115,10 @@ def refresh_description(server=None):
 async def on_message(message, answered=False):
     player = bt.get_player(message.server)
 
-    if check(message, ' давай давай лечиться!'):
-        # await bt.check_today_price(bot, "2019-05-07")
-        msg = await scheduler('evening')
-        await bt.send_work_test_text(bot, msg)
+    if check(message, ' давай давай! лечиться!!!'):
+        await bt.check_today_info(bot)
+        # msg = await scheduler('evening')
+        # await bt.send_work_test_text(bot, msg)
         answered = True
 
     if message.content.lower().startswith("!_!"):

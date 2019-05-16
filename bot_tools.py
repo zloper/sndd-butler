@@ -133,6 +133,16 @@ async def check_today_price(bot, current_dt):
             await send_news(bot, "Выгодный курс валюты", news_txt)
             return
 
+#TODO tmp hardcode
+async def day_common_news(bot):
+    res = requests.get("http://78.155.219.118:8089/GetRandomDayInfo")
+    txt = res.text
+    img = ""
+    if "https" in res.text:
+        img = "https" + txt.split('https')[1]
+        txt = txt.split('https')[0]
+    await send_news(bot, "Выгодный курс валюты", txt, img=img)
+    return
 
 def get_news_chls():
     chls = Channels.news.read()
@@ -147,6 +157,7 @@ def get_news_chls():
 
 def get_work_chls():
     return list(Channels.work.read().values())
+
 
 def get_work_test_chls():
     return list(Channels.test.read().values())
@@ -169,6 +180,7 @@ async def send_work_text(bot, text: str):
     for id in chls:
         channel = bot.get_channel(id)
         await bot.send_message(channel, text)
+
 
 async def send_work_test_text(bot, text: str):
     chls = get_work_test_chls()
@@ -246,6 +258,7 @@ def subscribe_work_channel(server, id):
     dct = Channels.work.read()
     dct[server] = id
     Channels.work.save(dct)
+
 
 def subscribe_work_test_channel(server, id):
     dct = Channels.test.read()
