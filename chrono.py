@@ -69,5 +69,7 @@ async def auto_goodbay(message: str, **kwargs):
 
 
 async def goodbay(message: str, **kwargs):
-    return "Доброго вечера господа!\n Рабочий день медленно но верно приближается к концу. \n" \
+    today = Calendar.today()
+    if today.type.is_working:
+        return "Доброго вечера господа!\n Рабочий день медленно но верно приближается к концу. \n" \
            "Я только хотела напомнить вам - пожалуйста не перетруждайтесь.\n И спасибо вам за труд."

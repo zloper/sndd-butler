@@ -78,6 +78,9 @@ async def on_ready():
                     msg = await scheduler('morning')
                     await bt.day_common_news(bot)
 
+                elif now.hour == 10:
+                    await bt.check_today_price(bot, current_dt)
+
                 elif now.hour == 17:
                     msg = await scheduler('evening')
 
@@ -89,7 +92,7 @@ async def on_ready():
                 # ================= New day block
                 print('- new day -')
                 saved_dt = current_dt
-                await bt.check_today_price(bot, current_dt)
+
         except Exception as ex:
             print(ex)
 
