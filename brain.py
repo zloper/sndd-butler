@@ -123,10 +123,14 @@ async def on_message(message, answered=False):
         # await bt.send_work_test_text(bot, msg)
         answered = True
 
+    if check(message, ' какие новости'):
+        await bt.ask_common_news(bot, message)
+        answered = True
+
     if check(message, ' лучший курс'):
         cur = str(message.content).split('лучший курс')[1].split('за')[0].strip()
         days = str(message.content).split('за')[1].split('дней')[0].strip()
-        response,_ = bt.find_best_ser(cur, days)
+        response, _ = bt.find_best_ser(cur, days)
         await bot.send_message(message.channel, "Легко!\n %s" % response)
         answered = True
 

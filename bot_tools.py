@@ -134,7 +134,6 @@ async def check_today_price(bot, current_dt):
             return
 
 
-# TODO tmp hardcode
 async def day_common_news(bot):
     url = env.get("day_url", None)
     res = requests.get("%s/GetRandomDayInfo" % url)
@@ -144,6 +143,21 @@ async def day_common_news(bot):
         img = "https" + txt.split('https')[1]
         txt = txt.split('https')[0]
     await send_news(bot, "История даты", txt.strip(), img=img)
+    return
+
+# TODO Fix img args
+async def ask_common_news(bot, message):
+    url = env.get("day_url", None)
+    res = requests.get("%s/GetRandomDayInfo" % url)
+    txt = res.text
+    img = None
+    if "https" in res.text:
+        img = "https" + txt.split('https')[1]
+        txt = txt.split('https')[0]
+    if img is not None:
+        await personal_news(bot, message.channel, "История даты", txt.strip(), img=img)
+    else:
+        await personal_news(bot, message.channel, "История даты", txt.strip())
     return
 
 
@@ -176,6 +190,10 @@ async def send_news(bot, news_theme, news_text, img="https://b.radikal.ru/b38/19
     for id in chls:
         chl = bot.get_channel(id)
         await news_module.news_form(chl, bot, news_theme, news_text, img=img)
+
+async def personal_news(bot, chl, news_theme, news_text, img="https://b.radikal.ru/b38/1905/96/4ace2aef7ced.gif"):
+    import news_module
+    await news_module.news_form(chl, bot, news_theme, news_text, img=img)
 
 
 async def send_work_text(bot, text: str):
