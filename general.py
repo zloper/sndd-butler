@@ -83,8 +83,6 @@ async def who(message: str, **kwargs):
     return 'Тут темно страшно и какой-то паладин лезет обниматься!'
 
 
-
-
 @root.regexp("(кыкай каст)")
 async def kick(message: str, **kwargs):
     """
@@ -103,6 +101,32 @@ async def er(message: str, **kwargs):
     response = bt.get_current_ser(cur)
     return "Да шеф!\n %s" % response
 
+
+@root.regexp("(тест валюты)")
+async def er(message: str, **kwargs):
+    """
+    Say extended rate
+    """
+    from bot_tools import env as env
+    message = kwargs['raw_message']
+    bot = kwargs['bot']
+    curs = str(message.content).split('валюты')[1].strip()
+    curs = curs.split(" ")
+    new_rq = ""
+    for cur in curs:
+        response = bt.get_all_ser(cur)
+        new_rq += response.strip() + "&"
+    if new_rq.endswith("&"):
+        new_rq = new_rq[:-1]
+
+    try:
+        with open(env.get("graph_adress", None), 'rb') as picture:
+            await bot.send_file(message.channel, picture)
+    except:
+        print("not finde image")
+
+    resp = bt.get_graph(new_rq)
+    return "Да шеф!\n %s" % resp
 
 
 @root.regexp("(какой ты версии?)|(version)")
@@ -140,6 +164,7 @@ async def sub(message: str, **kwargs):
         bt.subscribe_channel(message.server.id, message.channel.id)
         return 'Сделано!\n -- Теперь новости для этого сервера будут приходить в канал %s' % str(message.channel)
 
+
 @root.regexp("(добавь канал в рабочую рассылку)")
 async def sub_w(message: str, **kwargs):
     """
@@ -150,7 +175,9 @@ async def sub_w(message: str, **kwargs):
         return 'Увы не могу добавить канал %s!\nПопробуйте написать в канал на сервере.' % str(message.channel)
     else:
         bt.subscribe_work_channel(message.server.id, message.channel.id)
-        return 'Сделано!\n -- Теперь рабочие новости для этого сервера будут приходить в канал %s' % str(message.channel)
+        return 'Сделано!\n -- Теперь рабочие новости для этого сервера будут приходить в канал %s' % str(
+            message.channel)
+
 
 @root.regexp("(добавь канал в тест рассылку)")
 async def sub_t(message: str, **kwargs):
@@ -162,4 +189,5 @@ async def sub_t(message: str, **kwargs):
         return 'Увы не могу добавить канал %s!\nПопробуйте написать в канал на сервере.' % str(message.channel)
     else:
         bt.subscribe_work_test_channel(message.server.id, message.channel.id)
-        return 'Сделано!\n -- Теперь тестовые новости для этого сервера будут приходить в канал %s' % str(message.channel)
+        return 'Сделано!\n -- Теперь тестовые новости для этого сервера будут приходить в канал %s' % str(
+            message.channel)

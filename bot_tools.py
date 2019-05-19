@@ -235,6 +235,16 @@ def get_current_ser(cur):
     return res.text
 
 
+def get_all_ser(cur):
+    url = env.get("ser_url", None)
+    res = requests.get("%s/GetAllDays?cur=%s" % (url, cur))
+    return res.text
+
+def get_graph(rq):
+    url = env.get("serg_url", None)
+    res = requests.get("%s/DrawER?%s" % (url, rq))
+    return res.text
+
 def get_game_info(game):
     game = game.lower().strip()
     if game == "overwatch":
