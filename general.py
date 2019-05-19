@@ -102,7 +102,7 @@ async def er(message: str, **kwargs):
     return "Да шеф!\n %s" % response
 
 
-@root.regexp("(тест валюты)")
+@root.regexp("(график валюты)")
 async def er(message: str, **kwargs):
     """
     Say extended rate
