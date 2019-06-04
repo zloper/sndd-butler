@@ -93,8 +93,8 @@ class Knowledge:
         pattern = re.compile(f'^{re.escape(prefix)}.*?')
         if handler is None:
             def wrapper(f):
-                async def without_prefix(message: str):
-                    return await f(message[len(prefix):])
+                async def without_prefix(message: str, **kwargs):
+                    return await f(message[len(prefix):], **kwargs)
 
                 self.__handlers.append((pattern, without_prefix))
                 return f
