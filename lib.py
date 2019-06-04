@@ -50,7 +50,7 @@ class Player:
 
 class DuckDuckGo:
     PHRASES = re.compile(
-        r'(что|кто|найди|инф\w*|узнай|поясни|объясни|так\w*|о|what|is|who|which|search|query|\s|the|a|есть)+(?P<query>[\w\s\d]+)$')
+        r'(что|кто|найди|инф\w*|поясни|объясни|так\w*|о|what|is|who|which|search|query|\s|the|a|есть)+(?P<query>[\w\s\d]+)$')
 
     async def ask(self, query: str) -> Optional[str]:
         params = {
