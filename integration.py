@@ -5,6 +5,8 @@ endpoints = []
 
 
 @root.prefix("узнай")
+@root.prefix("тян")
+@root.prefix("будь другом")
 async def integrate(message: str, raw_message=None, **kwargs):
     futs = []
     channel_id = str(raw_message.channel.id)
