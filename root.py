@@ -2,7 +2,7 @@ from typing import NamedTuple
 
 from knowledge import Knowledge
 
-root = Knowledge('сая ')
+root = Knowledge('сая ', 'сая-чан ', 'саятян ', 'сая-тян ')
 scheduler = Knowledge()
 pushes = Knowledge()
 
