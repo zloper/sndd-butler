@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import Tuple, List, Union, Optional, Pattern
 
@@ -27,6 +28,7 @@ class Knowledge:
         self.__handlers = []  # type: List[Tuple[Pattern,Handler],...]
         self.__default = None  # type: Optional[Handler]
         self.__triggers = tuple(x.lower() for x in triggers)
+        self.__log = logging.getLogger('knowledge')
 
     async def __call__(self, message_text: str, **params) -> Optional[Union[str, bytes]]:
         """
@@ -37,19 +39,21 @@ class Knowledge:
         :param message_text: any text message
         :return: None - if nothing matched or if default handler returned not, otherwise expects string or bytes
         """
+        self.__log.info("triggered text %s with %i params", message_text, len(params))
         triggered = len(self.__triggers) == 0
         for trigger in self.__triggers:
             if message_text.lower().startswith(trigger):
                 message_text = message_text[len(trigger):]
+                self.__log.info("triggered text %s by %s", message_text, trigger)
                 triggered = True
                 break
-
         if not triggered:
+            self.__log.info("triggered text %s is not suitable for the router", message_text)
             return None
-
         for (pattern, handler) in self.__handlers:
             match = pattern.match(message_text)
             if match:
+                self.__log.info("triggered text %s match handler by %s via %r", message_text, pattern.pattern, handler)
                 reply = None
                 try:
                     reply = await handler(message_text, **match.groupdict(), **params)
@@ -57,8 +61,14 @@ class Knowledge:
                     # it's a program termination
                     return None
                 except Exception as ex:
+                    self.__log.info("triggered text %s match handler by %s failed %r", message_text,
+                                    pattern.pattern,
+                                    ex)
                     print("error on processing", message_text, ":", ex)
                 if reply is not None:
+                    self.__log.info("triggered text %s match handler by %s replied %r", message_text,
+                                    pattern.pattern,
+                                    reply)
                     return reply
         if self.__default is not None:
             return await self.__default(message_text, **params)

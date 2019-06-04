@@ -26,7 +26,7 @@ import general
 import chrono
 import integration
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 integration.endpoints = env.get('integration', [])
 
