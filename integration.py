@@ -8,8 +8,7 @@ endpoints = []
 async def integrate(message: str, raw_message=None, **kwargs):
     futs = []
     channel_id = str(raw_message.channel.id)
-    server_id = str(raw_message.server.id)
-    session_id = server_id + "/" + channel_id
+    session_id = channel_id
     with aiohttp.ClientSession() as session:
         for url in endpoints:
             futs.append(session.post(url, data=message, headers={"session": session_id}))
@@ -34,9 +33,8 @@ async def poll(*args, **kwargs):
             if res.status != 200:
                 continue
             message = await res.text()
-            server_id, channel_id = res.headers.get('session', '-1/-1').split('/')
+            channel_id = res.headers.get('session', '-1')
             polls.append(Push(
-                server=server_id,
                 channel=channel_id,
                 message=message
             ))
