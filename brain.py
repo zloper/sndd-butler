@@ -4,6 +4,7 @@ from io import BytesIO
 from time import sleep
 
 import asyncio
+from typing import List
 
 import requests
 
@@ -18,7 +19,7 @@ import lib
 import wow
 import logging
 
-from root import root, scheduler
+from root import root, scheduler, Push, pushes
 from bot_tools import env as env
 
 # import modules to load them to knowledge
@@ -66,6 +67,13 @@ async def on_ready():
     saved_hour = -1
     while True:
         try:
+            response = await pushes('integration')  # type: List[Push]
+            for push in response:
+                channel = bot.get_channel(push.channel)
+                await bot.send_message(channel, push.message)
+        except Exception as ex:
+            print(ex)
+        try:
             now = datetime.now()
             tm = now.strftime('%Y-%m-%d %H:%M:%S')
             current_dt = now.strftime('%Y-%m-%d')
@@ -104,7 +112,7 @@ async def on_ready():
             print(ex)
 
         print('1 min')
-        await asyncio.sleep(60)  # 10 minute
+        await asyncio.sleep(60)  # 1 minute
 
 
 def upd_voites(id, new_count):
