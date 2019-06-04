@@ -22,6 +22,9 @@ from bot_tools import env as env
 # import modules to load them to knowledge
 import general
 import chrono
+import integration
+
+integration.endpoints = env.get('integration', [])
 
 bot = discord.Client()
 DISCORD_BOT_TOKEN = env.get("token", "")
