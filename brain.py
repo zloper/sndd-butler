@@ -16,6 +16,8 @@ import sys
 import bot_tools as bt
 import lib
 import wow
+import logging
+
 from root import root, scheduler
 from bot_tools import env as env
 
@@ -23,6 +25,8 @@ from bot_tools import env as env
 import general
 import chrono
 import integration
+
+logging.basicConfig(level=logging.DEBUG)
 
 integration.endpoints = env.get('integration', [])
 
