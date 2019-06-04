@@ -8,6 +8,5 @@ pushes = Knowledge()
 
 
 class Push(NamedTuple):
-    server: str
     channel: str
     message: str
