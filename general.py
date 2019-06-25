@@ -44,9 +44,16 @@ async def who(message: str, **kwargs):
     """
     Say who am i
     """
-    answr = 'Артефакт нейронной сети синедара, и по совместительству скромный дворецкий сервера сндд'
+    answr = 'SNDD элемент. Или как говорят некоторые люди "артефакт нейронной сети Синедара", и по совместительству скромный дворецкий данного сервера'
     return answr
 
+@root.regexp("(что такое синедар|что такое Синедар)")
+async def sinedar(message: str, **kwargs):
+    """
+    Say about Sinedar
+    """
+    answr = 'Очевидно же что государство. Вы разве не в курсе?'
+    return answr
 
 @root.regexp("(бака)")
 async def baka(message: str, **kwargs):
