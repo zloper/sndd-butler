@@ -13,7 +13,10 @@ async def integrate(message: str, raw_message=None, **kwargs):
     session_id = channel_id
     with aiohttp.ClientSession() as session:
         for url in endpoints:
-            futs.append(session.post(url, data=message, headers={"session": session_id}))
+            futs.append(session.post(url, data=message, headers={
+                "session": session_id,
+                "author": str(raw_message.author)
+            }))
 
         for future in futs:
             res = await future
