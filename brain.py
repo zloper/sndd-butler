@@ -73,7 +73,7 @@ async def on_ready():
     print(bot.user.id)
     q_module.reset()
     print('------')
-    asyncio.create_task(fast_push())
+    asyncio.ensure_future(fast_push())
     # start bg tasks
     saved_dt = datetime.now().strftime('%Y-%m-%d')
     saved_hour = -1
