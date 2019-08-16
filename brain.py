@@ -54,17 +54,7 @@ async def check_role(message):
         raise Exception("[ERROR]: Not have permision for channel jump, %s" % message.author)
 
 
-@bot.event
-async def on_ready():
-    print('Logged in as')
-    print(bot.user.name)
-    print(bot.user.id)
-    q_module.reset()
-    print('------')
-
-    # start bg tasks
-    saved_dt = datetime.now().strftime('%Y-%m-%d')
-    saved_hour = -1
+async def fast_push():
     while True:
         try:
             response = await pushes('integration')  # type: List[Push]
@@ -73,6 +63,21 @@ async def on_ready():
                 await bot.send_message(channel, push.message)
         except Exception as ex:
             print(ex)
+        await asyncio.sleep(1)
+
+
+@bot.event
+async def on_ready():
+    print('Logged in as')
+    print(bot.user.name)
+    print(bot.user.id)
+    q_module.reset()
+    print('------')
+    asyncio.create_task(fast_push())
+    # start bg tasks
+    saved_dt = datetime.now().strftime('%Y-%m-%d')
+    saved_hour = -1
+    while True:
         try:
             now = datetime.now()
             tm = now.strftime('%Y-%m-%d %H:%M:%S')
