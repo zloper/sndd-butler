@@ -19,6 +19,7 @@ import lib
 import wow
 import logging
 
+from holidays import Calendar
 from root import root, scheduler, Push, pushes
 from bot_tools import env as env
 
@@ -98,7 +99,10 @@ async def on_ready():
                 msg = None
                 if now.hour == 9:
                     msg = await scheduler('morning')
-                    await bt.day_common_news(bot)
+                    # Dirty second use...
+                    today = Calendar.today()
+                    if today.type.is_working:
+                        await bt.day_common_news(bot)
 
                 elif now.hour == 10:
                     await bt.check_today_price(bot, current_dt)
