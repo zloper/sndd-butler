@@ -29,11 +29,11 @@ def get_url(str):
 
 
 async def reset(bot, message):
-    player = set_player(message.server, None)
-    vc = bot.voice_client_in(message.server)
+    player = set_player(message.guild, None)
+    vc = bot.voice_client_in(message.guild)
     if vc:
-        await bot.voice_client_in(message.server).disconnect()
-    player.voice = bot.voice_client_in(message.server)
+        await bot.voice_client_in(message.guild).disconnect()
+    player.voice = bot.voice_client_in(message.guild)
     return player
 
 
@@ -56,17 +56,17 @@ def get_player(server):
 def set_player(server, player):
     player_obj = lib.Player()
     player_obj.player = player
-    player_obj.server = server
+    player_obj.guild = server
     lib.players[server] = player_obj
     return lib.players[server]
 
 
 async def start_song(message, bot):
-    player = get_player(message.server)
+    player = get_player(message.guild)
     url = str(message.content).split('спой')[1].strip()
 
     if url.startswith("https://www.youtube.com") or url.startswith("https://youtu.be"):
-        voice_chat = bot.voice_client_in(message.server)
+        voice_chat = bot.voice_client_in(message.guild)
     else:
         await bot.send_message(message.channel, 'Не такое спеть не могу :(')
         return
@@ -76,7 +76,7 @@ async def start_song(message, bot):
         player.replay = False
 
     if voice_chat:
-        player = set_player(message.server, await voice_chat.create_ytdl_player(url))
+        player = set_player(message.guild, await voice_chat.create_ytdl_player(url))
         player.vol(0.5)
     else:
         await bot.send_message(message.channel, 'Так меня не услышат Т_Т')

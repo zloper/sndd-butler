@@ -1,4 +1,5 @@
-discord==0.16.12
+# discord==0.16.12
+discord
 aiohttp
 pyyaml
 requests

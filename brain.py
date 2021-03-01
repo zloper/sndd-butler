@@ -51,7 +51,7 @@ def check(message, check_word):
 async def check_role(message):
     roles = bt.get_rolles(message)
     if not any(role in vip for role in roles):
-        await bot.send_message(message.channel, 'Не я не могу это сделать по вашей просьбе...')
+        await message.channel.send( 'Не я не могу это сделать по вашей просьбе...')
         raise Exception("[ERROR]: Not have permision for channel jump, %s" % message.author)
 
 
@@ -61,7 +61,7 @@ async def fast_push():
             response = await pushes('integration')  # type: List[Push]
             for push in response:
                 channel = bot.get_channel(push.channel)
-                await bot.send_message(channel, push.message)
+                await channel.send(channel, push.message)
         except Exception as ex:
             print(ex)
         await asyncio.sleep(1)
@@ -144,7 +144,7 @@ def refresh_description(server=None):
 
 @bot.event
 async def on_message(message, answered=False):
-    player = bt.get_player(message.server)
+    player = bt.get_player(message.guild)
 
     if check(message, ' давай давай! лечиться!!!'):
         await bt.day_common_news(bot)
@@ -160,7 +160,7 @@ async def on_message(message, answered=False):
         cur = str(message.content).split('лучший курс')[1].split('за')[0].strip()
         days = str(message.content).split('за')[1].split('дней')[0].strip()
         response, _ = bt.find_best_ser(cur, days)
-        await bot.send_message(message.channel, "Легко!\n %s" % response)
+        await message.channel.send("Легко!\n %s" % response)
         answered = True
 
     if message.content.lower().startswith("!_!"):
@@ -212,7 +212,7 @@ async def on_message(message, answered=False):
        info"""
         answr = mus_module.finder(message)
         if answr is not None:
-            await bot.send_message(message.channel, answr)
+            await message.channel.send( answr)
             answered = True
 
     if check(message, ' сбрось опрос'):
@@ -237,7 +237,7 @@ async def on_message(message, answered=False):
 
     if message.content.lower().startswith('все понятно?'):
         print('[command]: все понятно')
-        await bot.send_message(message.channel, 'Всё понятно!')
+        await message.channel.send( 'Всё понятно!')
         answered = True
 
     # if check(message, ' прыгни в канал'):
@@ -247,25 +247,25 @@ async def on_message(message, answered=False):
     #     try:
     #         channel = str(message.content).split('канал')[1].strip()
     #         is_finded = False
-    #         for ch in message.server.channels:
+    #         for ch in message.guild.channels:
     #             if ch.name == channel:
     #                 # TODO change to => check_role(message) <-- need test
     #                 # roles = bt.get_rolles(message)
     #                 # if not any(role in vip for role in roles):
-    #                 #     await bot.send_message(message.channel, 'Не я не могу это сделать по вашей просьбе...')
+    #                 #     await message.channel.send( 'Не я не могу это сделать по вашей просьбе...')
     #                 #     raise Exception("[ERROR]: Not have permision for channel jump, %s" % message.author)
-    #                 vc = bot.voice_client_in(message.server)
+    #                 vc = bot.voice_client_in(message.guild)
     #                 if vc:
     #                     await vc.disconnect()
     #                 await bot.join_voice_channel(ch)
     #                 is_finded = True
-    #                 await bot.send_message(message.channel, 'Туточки! ^_^')
+    #                 await message.channel.send( 'Туточки! ^_^')
     #                 break
     #         if not is_finded:
-    #             await bot.send_message(message.channel, 'нет такого ТТ')
+    #             await message.channel.send( 'нет такого ТТ')
     #     except Exception as ex:
     #         print(ex)
-    #         await bot.send_message(message.channel, 'что-то не пускает ТТ')
+    #         await message.channel.send( 'что-то не пускает ТТ')
     #     answered = True
 
     if check(message, ' дай инфу по'):
@@ -275,9 +275,9 @@ async def on_message(message, answered=False):
         game = str(message.content).split("дай инфу по")[1]
         answer = bt.get_game_info(game)
         if answer:
-            await bot.send_message(message.channel, '%s' % answer)
+            await message.channel.send( '%s' % answer)
         else:
-            await bot.send_message(message.channel, 'не знаю такой игры =\\')
+            await message.channel.send( 'не знаю такой игры =\\')
         answered = True
 
     if check(message, ' посимь'):
@@ -286,15 +286,15 @@ async def on_message(message, answered=False):
          info"""
         name = str(message.content).split("посимь")[1]
         try:
-            await bot.send_message(message.channel, 'Минутку.')
+            await message.channel.send( 'Минутку.')
             answer = await bt.simc(name)
         except Exception as ex:
             print(ex)
-            await bot.send_message(message.channel, 'Что-то не удалось... Вы точно верно всё ввели?')
+            await message.channel.send( 'Что-то не удалось... Вы точно верно всё ввели?')
         if answer:
-            await bot.send_message(message.channel, '%s' % answer)
+            await message.channel.send( '%s' % answer)
         else:
-            await bot.send_message(message.channel, 'не знаю такого =\\')
+            await message.channel.send( 'не знаю такого =\\')
         answered = True
 
     # ---------------------------------------- Плеер -----------------------------------------------------
@@ -305,10 +305,10 @@ async def on_message(message, answered=False):
             player.replay = False
             sleep(3)
         else:
-            player = bt.set_player(message.server, None)
+            player = bt.set_player(message.guild, None)
         # ++++++++++++
-        if bot.voice_client_in(message.server) is not None:
-            await bot.voice_client_in(message.server).disconnect()
+        if bot.voice_client_in(message.guild) is not None:
+            await bot.voice_client_in(message.guild).disconnect()
 
         voice_channel = message.author.voice_channel
         vc = await bot.join_voice_channel(voice_channel)
@@ -318,7 +318,7 @@ async def on_message(message, answered=False):
         if player.voice:
             player.player = await player.voice.create_ytdl_player(url)
             player.start()
-            await bot.send_message(message.channel, 'Да капитан!')
+            await message.channel.send( 'Да капитан!')
         answered = True
 
     # if check(message, ' спой'):
@@ -332,7 +332,7 @@ async def on_message(message, answered=False):
     #     """in-fo
     #         Могу перестать петь, команда: <замолкни>
     #      info"""
-    #     await bot.send_message(message.channel, 'Ладно-ладно! Молчу!')
+    #     await message.channel.send( 'Ладно-ладно! Молчу!')
     #     player.stop()
     #     player.replay = False
     #     answered = True
@@ -348,23 +348,23 @@ async def on_message(message, answered=False):
     #         # TODO crush without sleep - fix later
     #         sleep(3)
     #     else:
-    #         player = bt.set_player(message.server, None)
-    #     player.voice = bot.voice_client_in(message.server)
+    #         player = bt.set_player(message.guild, None)
+    #     player.voice = bot.voice_client_in(message.guild)
     #     if player.voice:
     #         player.replay = True
     #         player.repeat(bot, url)
-    #         await bot.send_message(message.channel, 'Так точно!')
+    #         await message.channel.send( 'Так точно!')
     #     else:
-    #         await bot.send_message(message.channel, 'Но я ведь не в канале ТТ')
+    #         await message.channel.send( 'Но я ведь не в канале ТТ')
     #     answered = True
     #
     # if check(message, ' слейся'):
     #     """in-fo
     #         Могу покинуть канал, команда: <слейся>
     #      info"""
-    #     await bot.voice_client_in(message.server).disconnect()
+    #     await bot.voice_client_in(message.guild).disconnect()
     #     player.voice = None
-    #     await bot.send_message(message.channel, 'Так точно! Только не ругаетесь! >_<')
+    #     await message.channel.send( 'Так точно! Только не ругаетесь! >_<')
     #     answered = True
     #
     # if check(message, ' тихо'):
@@ -372,10 +372,10 @@ async def on_message(message, answered=False):
     #        Могу петь тихо, команда: <тихо>
     #     info"""
     #     if player:
-    #         await bot.send_message(message.channel, bt.q_answer())
+    #         await message.channel.send( bt.q_answer())
     #         player.vol(0.1)
     #     else:
-    #         await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
+    #         await message.channel.send( 'Так ведь это... Тишина же...')
     #     answered = True
     #
     # if check(message, ' громко'):
@@ -383,10 +383,10 @@ async def on_message(message, answered=False):
     #        Могу петь громко, команда: <громко>
     #     info"""
     #     if player:
-    #         await bot.send_message(message.channel, bt.q_answer())
+    #         await message.channel.send( bt.q_answer())
     #         player.vol(1.0)
     #     else:
-    #         await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
+    #         await message.channel.send( 'Так ведь это... Тишина же...')
     #     answered = True
     #
     # if check(message, ' не шуми'):
@@ -394,10 +394,10 @@ async def on_message(message, answered=False):
     #        Могу установить среднюю громкость, команда: <не шуми>
     #     info"""
     #     if player:
-    #         await bot.send_message(message.channel, bt.q_answer())
+    #         await message.channel.send( bt.q_answer())
     #         player.vol(0.5)
     #     else:
-    #         await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
+    #         await message.channel.send( 'Так ведь это... Тишина же...')
     #     answered = True
     #
     # if check(message, ' установи громкость '):
@@ -406,10 +406,10 @@ async def on_message(message, answered=False):
     #     info"""
     #     if player:
     #         value = str(message.content).split('установи громкость')[1].strip()
-    #         await bot.send_message(message.channel, "Хорошо, устанавливаю громкость %s" % value)
+    #         await message.channel.send( "Хорошо, устанавливаю громкость %s" % value)
     #         player.vol(float(value))
     #     else:
-    #         await bot.send_message(message.channel, 'Так ведь это... Тишина же...')
+    #         await message.channel.send( 'Так ведь это... Тишина же...')
     #     answered = True
     # ---------------------------------------- Плеер -----------------------------------------------------
 
@@ -421,49 +421,49 @@ async def on_message(message, answered=False):
         """info
             Могу устраивать кино викторины, команда: <запусти викторину>
         info"""
-        await bot.send_message(message.channel, 'Хорошо! Начинаем викторину!')
+        await message.channel.send( 'Хорошо! Начинаем викторину!')
         try:
-            screen = cinema_game.start_game(message.server, easy_mod=True)
-            await bot.send_message(message.channel, screen)
-            await bot.send_message(message.channel,
+            screen = cinema_game.start_game(message.guild, easy_mod=True)
+            await message.channel.send( screen)
+            await message.channel.send(
                                    "Для ответа напишите '!это название_фильма' для подсказки введите '!подсказка'")
         except Exception as ex:
             bt.log(ex)
-            await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
+            await message.channel.send( 'Что-то не вышло... Давайте по новой')
         answered = True
 
     if message.content.lower().startswith("!это"):
         answer = str(message.content).split('!это')[1].strip()
         try:
-            right_answer = cinema_game.game_try(answer, message.server)
+            right_answer = cinema_game.game_try(answer, message.guild)
             if right_answer:
                 points = cinema_game.get_points()
                 current_points = cinema_game.add_points_to_user(str(message.author))
-                await bot.send_message(message.channel,
+                await message.channel.send(
                                        f"Ответ принят. " + str(right_answer) + f" Вы получаете {points} очков.")
-                await bot.send_message(message.channel, "Рейтинг игроков: " + str(current_points) + " Продолжаем...")
-                screen = cinema_game.start_game(message.server, easy_mod=True)
-                await bot.send_message(message.channel, screen)
+                await message.channel.send( "Рейтинг игроков: " + str(current_points) + " Продолжаем...")
+                screen = cinema_game.start_game(message.guild, easy_mod=True)
+                await message.channel.send( screen)
             else:
-                await bot.send_message(message.channel, "Неа!")
+                await message.channel.send( "Неа!")
         except Exception as ex:
             bt.log(ex)
-            await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
+            await message.channel.send( 'Что-то не вышло... Давайте по новой')
         answered = True
 
     if message.content.lower().startswith('!подсказка'):
-        await bot.send_message(message.channel, 'Ладушки, посмотрим...')
+        await message.channel.send( 'Ладушки, посмотрим...')
         try:
-            tip = cinema_game.get_tip(message.server)
+            tip = cinema_game.get_tip(message.guild)
             print("!подсказка", tip)
             if tip is not None:
-                await bot.send_message(message.channel, 'Даю подсказку, но учтите что выйгрыш становится меньше!')
-                await bot.send_message(message.channel, tip)
+                await message.channel.send( 'Даю подсказку, но учтите что выйгрыш становится меньше!')
+                await message.channel.send( tip)
             else:
-                await bot.send_message('Увы, больше подсказок нету...')
+                await message.channel.send('Увы, больше подсказок нету...')
         except Exception as ex:
             bt.log(ex)
-            await bot.send_message(message.channel, 'Что-то не вышло... Давайте по новой')
+            await message.channel.send( 'Что-то не вышло... Давайте по новой')
         answered = True
 
     # try crypto rates
@@ -475,7 +475,7 @@ async def on_message(message, answered=False):
     #     ans = await crypto.ask_if_possible(text)
     #     if ans is not None:
     #         if isinstance(ans, str):
-    #             await bot.send_message(message.channel, ans)
+    #             await message.channel.send( ans)
     #         else:
     #             file = BytesIO(ans)
     #             await bot.send_file(message.channel, file, filename='chart.png')
@@ -488,13 +488,13 @@ async def on_message(message, answered=False):
         text = message.content[len(code):]
         ans = await calc.ask_if_possible(text)
         if ans is not None:
-            await bot.send_message(message.channel, ans)
+            await message.channel.send(ans)
             answered = True
 
     reply = await root(message.content, raw_message=message, bot=bot)
     if reply is not None:
-        if isinstance(reply, str):
-            await bot.send_message(message.channel, reply)
+        if isinstance(reply, str):            
+            await message.channel.send(reply)
         else:
             file = BytesIO(reply)
             await bot.send_file(message.channel, file, filename='chart.png')
@@ -512,14 +512,14 @@ async def on_message(message, answered=False):
             # TODO catch error: Attempt to decode JSON with unexpected mimetype: application/x-javascript
             print("debug ans: ", ans)
             if len(ans.strip()) > 0:
-                await bot.send_message(message.channel, ans)
+                await message.channel.send( ans)
                 answered = True
 
     if message.content.startswith(code + 'exit233'):
         sys.exit()
 
     if check(message, " ") and not answered:
-        await bot.send_message(message.channel, bt.random_answer())
+        await message.channel.send( bt.random_answer())
 
 
 bot.run(DISCORD_BOT_TOKEN)
