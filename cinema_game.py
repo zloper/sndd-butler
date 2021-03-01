@@ -69,7 +69,6 @@ def parse_film(url):
     if '<div class="titleParent">' in txt:
         parent_title = txt.split('<div class="titleParent">')[1].split('title="')[1].split('"')[0]
         parent_title = parent_title.lower().strip()
-
     titles = [title, orig_title, parent_title, mv_obj.title]
     mv_info["title"] = list(filter(None, titles))
     mv_info["description"] = mv_obj.description.replace("/", " - ").replace("\\", " - ")
@@ -79,9 +78,14 @@ def parse_film(url):
     # mv_info['review'] = mv_obj.review
 
     ender = url.split("/")[-1]
-    screens_url = url.replace(ender, "mediaindex?ref_=tt_pv_mi_sm")
+    # screens_url = url.replace(ender, "mediaindex?ref_=tt_pv_mi_sm")
+    screens_url = url+"mediaindex?ref_=tt_pv_mi_sm"
 
     mv_info["screens_url"] = screens_url
+    # print(mv_info)
+    # print(ender)
+    # print(url)
+    # print(mv_info["screens_url"])
 
     r = requests.get(screens_url)
     s_txt = r.text
@@ -91,8 +95,8 @@ def parse_film(url):
     raw_screens = s_txt.split(start_block)[1].split(end_block)[0]
 
     screens_list = refs_to_list(raw_screens)
-
     mv_info['screens'] = screens_list
+    print(mv_info)
     return mv_info
 
 
@@ -113,11 +117,17 @@ def get_mv(server):
 def open_screen(url):
     r = requests.get(url)
     txt = r.text
-    screens = re.findall(r'"https://m.media-amazon.com/images/.*\.jpg"', txt)
-    return screens[0]
+    screens = re.findall(r'"https://m.media-amazon.com/images/M.*\.jpg"', txt)
+    result=[]
+    for scr in screens:
+        if "/><meta" in scr:
+            scr = scr.split("/><meta")[0]
+        result.append(scr)
+    return result[0]
 
 
 def get_and_rm_screen(movie,server):
+    print(1)
     scr_list = movie['screens']
     if len(scr_list) > 0:
         if len(scr_list) == 1:
@@ -127,10 +137,11 @@ def get_and_rm_screen(movie,server):
             return scr
         nums = range(1, len(scr_list))
         rand = random.choice(nums)
-
+        print(2)
         scr = scr_list.pop(rand)
         movie['screens'] = scr_list
         save_mv(movie,server)
+        print(3)
         return scr
     else:
         print("SCREENS ENDED!")

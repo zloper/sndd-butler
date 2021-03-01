@@ -1,4 +1,9 @@
 import os
+import subprocess
+import sys
+
+import docker
+from docker.types import Mount
 
 from datetime import datetime, time
 
@@ -145,6 +150,7 @@ async def day_common_news(bot):
     await send_news(bot, "История даты", txt.strip(), img=img)
     return
 
+
 # TODO Fix img args
 async def ask_common_news(bot, message):
     url = env.get("day_url", None)
@@ -190,6 +196,7 @@ async def send_news(bot, news_theme, news_text, img="https://b.radikal.ru/b38/19
     for id in chls:
         chl = bot.get_channel(id)
         await news_module.news_form(chl, bot, news_theme, news_text, img=img)
+
 
 async def personal_news(bot, chl, news_theme, news_text, img="https://b.radikal.ru/b38/1905/96/4ace2aef7ced.gif"):
     import news_module
@@ -240,10 +247,46 @@ def get_all_ser(cur):
     res = requests.get("%s/GetAllDays?cur=%s" % (url, cur))
     return res.text
 
+
 def get_graph(rq):
     url = env.get("serg_url", None)
     res = requests.get("%s/DrawER?%s" % (url, rq))
     return res.text
+
+
+async def simc(name):
+    c = docker.from_env()
+    pathname = os.path.dirname(sys.argv[0])
+    in_f = pathname + "/simc_input1.simc"
+    input_file = pathname + "/simc_input.simc"
+    with open(input_file, "r") as f:
+        cfg = f.read()
+    cfg = cfg.replace("NAMEHERE", name)
+    with open(in_f, "w") as f:
+        f.write(cfg)
+    m = Mount("/app/SimulationCraft/workfile.simc", in_f, type="bind")
+
+    result = c.containers.run('simulationcraftorg/simc',
+                              command="./simc /app/SimulationCraft/workfile.simc",
+                              remove=True,
+                              mounts=[m])
+
+    result = result.decode()
+    dps = result.split("DPS Ranking:")[1].split("100.0%  Raid")[0].strip()
+    hp = result.split("health=")[1].split("|")[0].strip()
+    link = result.split("Origin:")[1].split("Talents:")[0].strip()
+    mastery = result.split("mastery=")[1].split("|")[0].strip()
+    versatility = result.split("versatility=")[1].split("|")[0].strip()
+    crit = result.split("crit=")[1].split("|")[0].strip()
+    haste = result.split("haste=")[1].split("|")[0].strip()
+
+    msg = """Персонаж: %s
+    Дпс: %s
+    Искусность: %s Универсальность: %s Крит: %s Скорость: %s
+    Здоровье: %s
+    Персонаж: %s""" % (name, dps, mastery, versatility, crit, haste, hp, link)
+    return msg
+
 
 def get_game_info(game):
     game = game.lower().strip()

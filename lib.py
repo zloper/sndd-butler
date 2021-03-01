@@ -62,7 +62,10 @@ class DuckDuckGo:
             async with session.get('https://api.duckduckgo.com/', params=params) as response:
                 if response.status != 200:
                     return None
-                obj = await response.json()
+                obj = await response.read()
+
+                obj = obj.decode("UTF-8")
+                obj = json.loads(obj)
                 return obj.get('AbstractText', None) or None  # type: Optional[str]
 
     async def ask_if_possible(self, query: str) -> Optional[str]:
