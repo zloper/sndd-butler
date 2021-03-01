@@ -53,7 +53,7 @@ async def crt_web_form(message, bot, question, answers=[], img="",
         storage[id] = []
     save_question(storage)
 
-    helper.last_q = await bot.send_message(destanation, content="время опроса!", embed=embed)
+    helper.last_q = await destanation.send(content="время опроса!", embed=embed)
     helper.embed = embed
 
 
