@@ -214,7 +214,7 @@ async def on_message(message, answered=False):
        info"""
         answr = mus_module.finder(message)
         if answr is not None:
-            await message.channel.send( answr)
+            await message.channel.send(answr)
             answered = True
 
     if check(message, ' сбрось опрос'):

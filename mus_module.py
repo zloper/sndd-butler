@@ -20,8 +20,8 @@ def finder(message):
         # print(dct)
         # print(dct['file_versions'])
         # print(dct['file_versions']['html5'])
-
-        id = str(message.server)
+        
+        id = str(message.guild)
         if id == "None":
             id = message.author
 
@@ -30,7 +30,7 @@ def finder(message):
         return res
 
     if msg.startswith("скинь трек"):
-        id = str(message.server)
+        id = str(message.guild)
         if id == "None":
             id = message.author
 
@@ -49,7 +49,7 @@ def get_coub(url,msg):
     # print(dct['file_versions'])
     # print(dct['file_versions']['html5'])
 
-    id = str(msg.server)
+    id = str(msg.guild)
     if id == "None":
         id = msg.author
 
