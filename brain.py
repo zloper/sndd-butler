@@ -174,7 +174,9 @@ async def on_message(message, answered=False):
 
         q_module.upd_question(answer, message)
         refresh_description()
-        await bot.edit_message(helper.last_q, embed=helper.embed)
+        print(helper.last_q)
+        # await bot.edit_message(helper.last_q, embed=helper.embed)
+        await helper.last_q.edit(embed=helper.embed)
         answered = True
 
     if check(message, ' замути опрос'):
