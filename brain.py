@@ -224,6 +224,15 @@ async def on_message(message, answered=False):
         q_module.reset()
         answered = True
 
+    if check(message, ' перезапусти вальхейм'):
+        """info
+            Могу ребутнуть сервак с вальхеймом: <перезапусти вальхейм>
+         info"""
+        await message.channel.send('один момент...')
+        bt.valheim()
+        await message.channel.send('Готово!')
+        answered = True
+
     # if check(message, ' !новость!'):
     #     block = str(message.content).split("!новость!")[1]
     #     theme = block.split("[[")[1].split("]]")[0]
@@ -287,6 +296,7 @@ async def on_message(message, answered=False):
             Могу симить персоажей на СД, команда: <посимь>
          info"""
         name = str(message.content).split("посимь")[1]
+        answer = None
         try:
             await message.channel.send( 'Минутку.')
             answer = await bt.simc(name)
@@ -495,7 +505,7 @@ async def on_message(message, answered=False):
 
     reply = await root(message.content, raw_message=message, bot=bot)
     if reply is not None:
-        if isinstance(reply, str):            
+        if isinstance(reply, str):
             await message.channel.send(reply)
         else:
             file = BytesIO(reply)

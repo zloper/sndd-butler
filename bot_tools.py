@@ -254,6 +254,12 @@ def get_graph(rq):
     return res.text
 
 
+def valheim():
+    c = docker.from_env()
+    valh = c.containers.get("sato_valheim_1")
+    valh.restart()
+    return
+
 async def simc(name):
     c = docker.from_env()
     pathname = os.path.dirname(sys.argv[0])
